@@ -7,14 +7,39 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
   <style>
-body {
+  :root {
+    --page-bg: #f5f7fa;
+    --surface: #ffffff;
+    --line: #d9e2ef;
+    --soft-line: #eef2f7;
+    --primary: #0d6efd;
+    --text: #1f2937;
+  }
+
+  body {
     background-color: #f5f7fa;
     font-family: 'Sarabun', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text);
+    scroll-behavior: smooth;
+  }
+
+  .app-shell {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .app-header h2 {
+    color: var(--primary);
+    line-height: 1.35;
+  }
+
+  .app-header p {
+    margin-bottom: 0;
   }
 
   .card-custom {
-    border-radius: 12px;
-    border: none;
+    border-radius: 8px;
+    border: 1px solid var(--soft-line);
     overflow: hidden;
     transition: box-shadow 0.3s ease;
   }
@@ -24,16 +49,31 @@ body {
   }
 
   .card-header {
-    padding: 12px 20px;
+    padding: 14px 20px;
   }
 
   .card-body {
     padding: 20px;
   }
 
+  .form-label {
+    margin-bottom: 0.4rem;
+  }
+
+  .form-control,
+  .btn {
+    min-height: 44px;
+  }
+
   .form-control:focus {
     border-color: #0d6efd;
     box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+  }
+
+  .btn:focus-visible,
+  .form-control:focus-visible {
+    outline: 3px solid rgba(13, 110, 253, 0.25);
+    outline-offset: 2px;
   }
 
   .table th {
@@ -48,6 +88,20 @@ body {
   .table input.form-control {
     font-size: 0.9rem;
     padding: 6px 10px;
+  }
+
+  .table .form-control {
+    min-width: 86px;
+  }
+
+  .summary-alert {
+    border: 1px solid #b6effb;
+    margin-bottom: 0;
+  }
+
+  .mobile-section-tabs,
+  .mobile-action-summary {
+    display: none;
   }
 
   .btn-lg {
@@ -68,13 +122,109 @@ body {
 
   /* Mobile responsive overrides */
   @media (max-width: 576px) {
+    body {
+      background: var(--surface);
+    }
+
     .container-fluid {
-      padding-left: 10px;
-      padding-right: 10px;
+      padding-left: 12px;
+      padding-right: 12px;
+      padding-top: 16px !important;
+    }
+
+    .app-shell {
+      padding-bottom: 16px;
+    }
+
+    .app-header {
+      text-align: left !important;
+      margin-bottom: 1rem !important;
+    }
+
+    .app-header h2 {
+      font-size: 1.35rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .app-header p {
+      font-size: 0.95rem;
+    }
+
+    .top-actions {
+      margin-bottom: 0.75rem !important;
+    }
+
+    .top-actions .btn {
+      text-align: left;
+      padding-left: 14px;
+      padding-right: 14px;
+    }
+
+    .mobile-section-tabs {
+      position: sticky;
+      top: 0;
+      z-index: 1010;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      margin: 0 -12px 12px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.96);
+      border-top: 1px solid var(--soft-line);
+      border-bottom: 1px solid var(--soft-line);
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .mobile-section-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .mobile-section-tabs .btn {
+      flex: 0 0 auto;
+      min-height: 38px;
+      padding: 7px 12px;
+      white-space: nowrap;
+    }
+
+    .card-custom {
+      border-left: 0;
+      border-right: 0;
+      border-radius: 0;
+      margin-left: -12px;
+      margin-right: -12px;
+      box-shadow: none !important;
+      scroll-margin-top: 58px;
+    }
+
+    .card-custom:hover {
+      box-shadow: none !important;
+    }
+
+    .card-header {
+      padding: 12px;
+    }
+
+    .card-header h5 {
+      font-size: 1rem;
+      line-height: 1.4;
     }
 
     .card-body {
       padding: 12px;
+    }
+
+    .row.g-3 {
+      --bs-gutter-y: 0.85rem;
+    }
+
+    .form-label {
+      font-size: 0.95rem;
+    }
+
+    .form-control {
+      font-size: 1rem;
+      padding: 10px 12px;
     }
 
     .btn-lg {
@@ -82,21 +232,159 @@ body {
       padding: 10px 14px;
     }
 
-    h2 {
-      font-size: 1.3rem;
+    .action-bar {
+      position: sticky;
+      bottom: 0;
+      z-index: 1020;
+      background: #ffffff;
+      border-top: 1px solid var(--line);
+      margin-left: -12px;
+      margin-right: -12px;
+      padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
+      box-shadow: 0 -8px 22px rgba(15, 23, 42, 0.12);
     }
 
-    .table {
-      font-size: 0.85rem;
+    .action-bar .btn {
+      min-height: 48px;
     }
 
-    .table input.form-control {
-      font-size: 0.85rem;
-      padding: 4px 8px;
+    .mobile-action-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+
+    .mobile-action-summary div {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 6px 8px;
+      text-align: center;
+      font-size: 0.82rem;
+      line-height: 1.25;
+    }
+
+    .mobile-action-summary strong {
+      display: block;
+      color: var(--primary);
+      font-size: 1.05rem;
+    }
+
+    .table-responsive {
+      overflow: visible;
+    }
+
+    .mobile-card-table {
+      border-collapse: separate;
+      border-spacing: 0 10px;
+      margin-bottom: 0;
+    }
+
+    .mobile-card-table thead {
+      display: none;
+    }
+
+    .mobile-card-table tbody,
+    .mobile-card-table tr,
+    .mobile-card-table td {
+      display: block;
+      width: 100%;
+    }
+
+    .mobile-card-table tr {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .mobile-card-table td {
+      border: 0;
+      padding: 7px 0;
+    }
+
+    .mobile-card-table td:first-child {
+      padding-top: 0;
+    }
+
+    .mobile-card-table td:last-child {
+      padding-bottom: 0;
+    }
+
+    .mobile-card-table td::before {
+      content: attr(data-label);
+      display: block;
+      color: #6b7280;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .mobile-card-table td[data-label="ตำแหน่ง"],
+    .mobile-card-table td[data-label="ระดับ"] {
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .mobile-card-table td[data-label="ตำแหน่ง"]::before,
+    .mobile-card-table td[data-label="ระดับ"]::before {
+      display: none;
+    }
+
+    .mobile-card-table .form-control {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .mobile-card-table .student-total,
+    .mobile-card-table #totalMaleStudents,
+    .mobile-card-table #totalFemaleStudents,
+    .mobile-card-table #grandTotalStudents {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 10px 12px;
+      min-height: 44px;
+    }
+
+    .mobile-card-table tr.table-info {
+      border-color: #9eeaf9;
+      background: #e7f8fc;
+    }
+
+    .student-entry-table tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: 10px;
+    }
+
+    .student-entry-table td[data-label="ระดับ"],
+    .student-entry-table td[data-label="รวม"] {
+      grid-column: 1 / -1;
+    }
+
+    .student-entry-table tr.table-info {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .student-entry-table tr.table-info td[data-label="ระดับ"] {
+      grid-column: 1 / -1;
+    }
+
+    .student-entry-table tr.table-info td {
+      text-align: center;
+    }
+
+    .summary-alert {
+      font-size: 1.05rem !important;
+      padding: 12px;
     }
 
     .swal2-popup {
       font-size: 0.9rem;
+      width: calc(100% - 24px) !important;
     }
   }
 
@@ -140,22 +428,110 @@ body {
   .school-item:last-child {
     border-bottom: none;
   }
+
+  .admin-viewer-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .admin-school-link {
+    color: var(--primary);
+    font-weight: 700;
+    padding: 0;
+    text-align: left;
+    text-decoration: none;
+  }
+
+  .admin-school-link:hover {
+    text-decoration: underline;
+  }
+
+  .submission-detail {
+    text-align: left;
+  }
+
+  .submission-detail-section {
+    border: 1px solid var(--soft-line);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    padding: 12px;
+  }
+
+  .submission-detail-section h6 {
+    color: var(--primary);
+    margin-bottom: 10px;
+  }
+
+  .submission-detail-grid {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .submission-detail-item {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+
+  .submission-detail-label {
+    color: #6b7280;
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .submission-detail-table {
+    font-size: 0.9rem;
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 576px) {
+    .schools-list-container {
+      max-height: 65vh;
+    }
+
+    .school-item {
+      padding: 10px 0;
+    }
+
+    .school-item .d-flex {
+      align-items: flex-start !important;
+      gap: 6px;
+      flex-direction: column;
+    }
+
+    .admin-viewer-actions {
+      flex-direction: column;
+    }
+
+    .submission-detail-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .submission-detail-table {
+      font-size: 0.85rem;
+    }
+  }
   </style>
 </head>
 <body>
-  <div class="container-fluid py-4" style="max-width: 960px; margin: 0 auto;">
+  <div class="container-fluid py-4 app-shell">
 
     <!-- Header -->
-    <div class="text-center mb-4">
-      <h2 class="fw-bold" style="color: #0d6efd;">🏫 ระบบรวบรวมข้อมูลสถานศึกษา</h2>
-      <p class="text-muted">แบบฟอร์มกรอกข้อมูลทั่วไปของสถานศึกษา</p>
+    <div class="text-center mb-4 app-header">
+      <h2 class="fw-bold mb-1">แบบสำรวจข้อมูลข้าราชการครูและบุคลากรทางการศึกษาศูนย์เครือข่ายพัฒนาคุณภาพการศึกษาที่ 9 ทุ่งใหญ่</h2>
+      <p class="fw-bold mb-1">ข้อมูล ณ วันที่ 10 มิถุนายน 2569</p>
+      <p class="text-muted mb-1">ข้อมูลข้าราชการครูแชะบุคลากรที่บรรจุตั้งแต่ 1 ตุลาคม 68 จนถึงปัจจุบัน </p>
     </div>
 
     <!-- Top Action Buttons -->
-    <div class="row mb-3 g-2">
+    <div class="row mb-3 g-2 top-actions">
       <div class="col-12 col-md-6">
-        <button class="btn btn-outline-primary w-100" onclick="promptDownloadPassword()">
-          📥 ดาวน์โหลดไฟล์ Excel (.xlsx)
+        <button class="btn btn-outline-primary w-100" onclick="openAdminDataViewer()">
+          🔐 ดูข้อมูลที่ส่งแล้ว (ผู้ดูแล)
         </button>
       </div>
       <div class="col-12 col-md-6">
@@ -165,8 +541,16 @@ body {
       </div>
     </div>
 
+    <nav class="mobile-section-tabs" aria-label="ส่วนของแบบฟอร์ม">
+      <a class="btn btn-outline-primary btn-sm" href="#schoolSection">สถานศึกษา</a>
+      <a class="btn btn-outline-primary btn-sm" href="#adminSection">ผู้บริหาร</a>
+      <a class="btn btn-outline-primary btn-sm" href="#staffSection">บุคลากร</a>
+      <a class="btn btn-outline-primary btn-sm" href="#studentSection">นักเรียน</a>
+      <a class="btn btn-outline-primary btn-sm" href="#submitterSection">ผู้กรอก</a>
+    </nav>
+
     <!-- Card: ข้อมูลสถานศึกษา -->
-    <div class="card mb-4 shadow-sm card-custom">
+    <div class="card mb-4 shadow-sm card-custom" id="schoolSection">
       <div class="card-header bg-primary text-white">
         <h5 class="mb-0">📋 ข้อมูลสถานศึกษา</h5>
       </div>
@@ -178,7 +562,7 @@ body {
           </div>
           <div class="col-12 col-md-6 col-lg-4">
             <label class="form-label fw-bold">ศูนย์ที่ <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="centerNo" placeholder="ศูนย์ที่" required>
+            <input type="text" class="form-control" id="centerNo" placeholder="ศูนย์ที่" inputmode="numeric" required>
           </div>
           <div class="col-12 col-md-6 col-lg-4">
             <label class="form-label fw-bold">อำเภอ <span class="text-danger">*</span></label>
@@ -189,7 +573,7 @@ body {
     </div>
 
     <!-- Card: ข้อมูลผู้บริหาร -->
-    <div class="card mb-4 shadow-sm card-custom">
+    <div class="card mb-4 shadow-sm card-custom" id="adminSection">
       <div class="card-header bg-primary text-white">
         <h5 class="mb-0">👔 ข้อมูลผู้บริหารสถานศึกษา</h5>
       </div>
@@ -201,7 +585,7 @@ body {
           </div>
           <div class="col-12 col-md-6">
             <label class="form-label fw-bold">หมายเลขโทรศัพท์ผู้อำนวยการ <span class="text-danger">*</span></label>
-            <input type="tel" class="form-control" id="directorPhone" placeholder="0xx-xxx-xxxx" required>
+            <input type="tel" class="form-control" id="directorPhone" placeholder="0xx-xxx-xxxx" inputmode="tel" autocomplete="tel" required>
           </div>
           <div class="col-12 col-md-6">
             <label class="form-label">ชื่อรองผู้อำนวยการ คนที่ 1</label>
@@ -209,7 +593,7 @@ body {
           </div>
           <div class="col-12 col-md-6">
             <label class="form-label">หมายเลขโทรศัพท์รองผู้อำนวยการ คนที่ 1</label>
-            <input type="tel" class="form-control" id="deputy1Phone" placeholder="0xx-xxx-xxxx">
+            <input type="tel" class="form-control" id="deputy1Phone" placeholder="0xx-xxx-xxxx" inputmode="tel" autocomplete="tel">
           </div>
           <div class="col-12 col-md-6">
             <label class="form-label">ชื่อรองผู้อำนวยการ คนที่ 2</label>
@@ -217,7 +601,7 @@ body {
           </div>
           <div class="col-12 col-md-6">
             <label class="form-label">หมายเลขโทรศัพท์รองผู้อำนวยการ คนที่ 2</label>
-            <input type="tel" class="form-control" id="deputy2Phone" placeholder="0xx-xxx-xxxx">
+            <input type="tel" class="form-control" id="deputy2Phone" placeholder="0xx-xxx-xxxx" inputmode="tel" autocomplete="tel">
           </div>
         </div>
         <div class="form-text mt-2">* ข้อมูลรองผู้อำนวยการสามารถเว้นว่างได้ หากไม่มี</div>
@@ -225,78 +609,69 @@ body {
     </div>
 
     <!-- Card: ข้อมูลบุคลากร -->
-    <div class="card mb-4 shadow-sm card-custom">
+    <div class="card mb-4 shadow-sm card-custom" id="staffSection">
       <div class="card-header bg-primary text-white">
         <h5 class="mb-0">👥 ข้อมูลบุคลากรในสถานศึกษา</h5>
       </div>
       <div class="card-body">
-        <h6 class="fw-bold mb-3">ตำแหน่งมาตรฐาน</h6>
+        <h6 class="fw-bold mb-3">ตำแหน่งบุคลากร</h6>
         <div class="table-responsive">
-          <table class="table table-bordered align-middle" id="standardStaffTable">
+          <table class="table table-bordered align-middle mobile-card-table" id="staffTable">
             <thead class="table-light">
               <tr>
-                <th style="width:45%">ตำแหน่ง</th>
-                <th style="width:20%">จำนวน</th>
-                <th style="width:30%">รายละเอียด / หมายเหตุ</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr data-position="ข้าราชการครูผู้สอน" data-type="standard">
-                <td>ข้าราชการครูผู้สอน</td>
-                <td><input type="number" class="form-control staff-count" min="0" value="0"></td>
-                <td><input type="text" class="form-control staff-detail" placeholder="หมายเหตุ"></td>
-              </tr>
-              <tr data-position="พนักงานราชการ" data-type="standard">
-                <td>พนักงานราชการ</td>
-                <td><input type="number" class="form-control staff-count" min="0" value="0"></td>
-                <td><input type="text" class="form-control staff-detail" placeholder="หมายเหตุ"></td>
-              </tr>
-              <tr data-position="ครูอัตราจ้าง" data-type="standard">
-                <td>ครูอัตราจ้าง</td>
-                <td><input type="number" class="form-control staff-count" min="0" value="0"></td>
-                <td><input type="text" class="form-control staff-detail" placeholder="หมายเหตุ"></td>
-              </tr>
-              <tr data-position="ครูพี่เลี้ยงเด็กพิการ" data-type="standard">
-                <td>ครูพี่เลี้ยงเด็กพิการ</td>
-                <td><input type="number" class="form-control staff-count" min="0" value="0"></td>
-                <td><input type="text" class="form-control staff-detail" placeholder="หมายเหตุ"></td>
-              </tr>
-              <tr data-position="นักการภารโรง" data-type="standard">
-                <td>นักการภารโรง</td>
-                <td><input type="number" class="form-control staff-count" min="0" value="0"></td>
-                <td><input type="text" class="form-control staff-detail" placeholder="หมายเหตุ"></td>
-              </tr>
-              <tr data-position="ธุรการ" data-type="standard">
-                <td>ธุรการ</td>
-                <td><input type="number" class="form-control staff-count" min="0" value="0"></td>
-                <td><input type="text" class="form-control staff-detail" placeholder="หมายเหตุ"></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <h6 class="fw-bold mt-4 mb-3">ตำแหน่งเพิ่มเติม</h6>
-        <div class="table-responsive">
-          <table class="table table-bordered align-middle" id="extraStaffTable">
-            <thead class="table-light">
-              <tr>
-                <th style="width:35%">ชื่อตำแหน่ง</th>
-                <th style="width:20%">จำนวน</th>
-                <th style="width:30%">รายละเอียด / หมายเหตุ</th>
+                <th style="width:35%">ตำแหน่ง</th>
+                <th style="width:18%">จำนวน</th>
+                <th style="width:32%">รายละเอียด / หมายเหตุ</th>
                 <th style="width:15%">จัดการ</th>
               </tr>
             </thead>
-            <tbody id="extraStaffBody">
+            <tbody id="staffTableBody">
+              <tr data-position="ข้าราชการครูผู้สอน" data-type="standard">
+                <td data-label="ตำแหน่ง">ข้าราชการครูผู้สอน</td>
+                <td data-label="จำนวน"><input type="number" class="form-control staff-count" min="0" value="0" inputmode="numeric"></td>
+                <td data-label="รายละเอียด / หมายเหตุ"><input type="text" class="form-control staff-detail" placeholder="หมายเหตุ"></td>
+                <td data-label="จัดการ"><span class="text-muted">-</span></td>
+              </tr>
+              <tr data-position="พนักงานราชการ" data-type="standard">
+                <td data-label="ตำแหน่ง">พนักงานราชการ</td>
+                <td data-label="จำนวน"><input type="number" class="form-control staff-count" min="0" value="0" inputmode="numeric"></td>
+                <td data-label="รายละเอียด / หมายเหตุ"><input type="text" class="form-control staff-detail" placeholder="หมายเหตุ"></td>
+                <td data-label="จัดการ"><span class="text-muted">-</span></td>
+              </tr>
+              <tr data-position="ครูอัตราจ้าง" data-type="standard">
+                <td data-label="ตำแหน่ง">ครูอัตราจ้าง</td>
+                <td data-label="จำนวน"><input type="number" class="form-control staff-count" min="0" value="0" inputmode="numeric"></td>
+                <td data-label="รายละเอียด / หมายเหตุ"><input type="text" class="form-control staff-detail" placeholder="หมายเหตุ"></td>
+                <td data-label="จัดการ"><span class="text-muted">-</span></td>
+              </tr>
+              <tr data-position="ครูพี่เลี้ยงเด็กพิการ" data-type="standard">
+                <td data-label="ตำแหน่ง">ครูพี่เลี้ยงเด็กพิการ</td>
+                <td data-label="จำนวน"><input type="number" class="form-control staff-count" min="0" value="0" inputmode="numeric"></td>
+                <td data-label="รายละเอียด / หมายเหตุ"><input type="text" class="form-control staff-detail" placeholder="หมายเหตุ"></td>
+                <td data-label="จัดการ"><span class="text-muted">-</span></td>
+              </tr>
+              <tr data-position="นักการภารโรง" data-type="standard">
+                <td data-label="ตำแหน่ง">นักการภารโรง</td>
+                <td data-label="จำนวน"><input type="number" class="form-control staff-count" min="0" value="0" inputmode="numeric"></td>
+                <td data-label="รายละเอียด / หมายเหตุ"><input type="text" class="form-control staff-detail" placeholder="หมายเหตุ"></td>
+                <td data-label="จัดการ"><span class="text-muted">-</span></td>
+              </tr>
+              <tr data-position="ธุรการ" data-type="standard">
+                <td data-label="ตำแหน่ง">ธุรการ</td>
+                <td data-label="จำนวน"><input type="number" class="form-control staff-count" min="0" value="0" inputmode="numeric"></td>
+                <td data-label="รายละเอียด / หมายเหตุ"><input type="text" class="form-control staff-detail" placeholder="หมายเหตุ"></td>
+                <td data-label="จัดการ"><span class="text-muted">-</span></td>
+              </tr>
             </tbody>
           </table>
         </div>
-        <button type="button" class="btn btn-outline-primary btn-sm" onclick="addExtraStaffRow()">
+        <button type="button" class="btn btn-outline-primary btn-sm mt-3" onclick="addExtraStaffRow()">
           ➕ เพิ่มตำแหน่ง
         </button>
 
         <div class="row mt-3">
           <div class="col-12">
-            <div class="alert alert-info fw-bold text-center fs-5">
+            <div class="alert alert-info fw-bold text-center fs-5 summary-alert">
               รวมบุคลากรทั้งหมด: <span id="totalStaffDisplay">0</span> คน
             </div>
           </div>
@@ -305,13 +680,13 @@ body {
     </div>
 
     <!-- Card: จำนวนนักเรียน -->
-    <div class="card mb-4 shadow-sm card-custom">
+    <div class="card mb-4 shadow-sm card-custom" id="studentSection">
       <div class="card-header bg-primary text-white">
         <h5 class="mb-0">🎓 จำนวนนักเรียน (วันเปิดภาคเรียน)</h5>
       </div>
       <div class="card-body">
         <div class="table-responsive">
-          <table class="table table-bordered align-middle" id="studentTable">
+          <table class="table table-bordered align-middle mobile-card-table student-entry-table" id="studentTable">
             <thead class="table-light">
               <tr>
                 <th>ระดับ</th>
@@ -322,28 +697,28 @@ body {
             </thead>
             <tbody>
               <tr data-level="อนุบาล">
-                <td class="fw-bold">อนุบาล</td>
-                <td><input type="number" class="form-control student-male" min="0" value="0"></td>
-                <td><input type="number" class="form-control student-female" min="0" value="0"></td>
-                <td class="fw-bold student-total">0</td>
+                <td class="fw-bold" data-label="ระดับ">อนุบาล</td>
+                <td data-label="ชาย"><input type="number" class="form-control student-male" min="0" value="0" inputmode="numeric"></td>
+                <td data-label="หญิง"><input type="number" class="form-control student-female" min="0" value="0" inputmode="numeric"></td>
+                <td class="fw-bold student-total" data-label="รวม">0</td>
               </tr>
               <tr data-level="ประถมศึกษา">
-                <td class="fw-bold">ประถมศึกษา</td>
-                <td><input type="number" class="form-control student-male" min="0" value="0"></td>
-                <td><input type="number" class="form-control student-female" min="0" value="0"></td>
-                <td class="fw-bold student-total">0</td>
+                <td class="fw-bold" data-label="ระดับ">ประถมศึกษา</td>
+                <td data-label="ชาย"><input type="number" class="form-control student-male" min="0" value="0" inputmode="numeric"></td>
+                <td data-label="หญิง"><input type="number" class="form-control student-female" min="0" value="0" inputmode="numeric"></td>
+                <td class="fw-bold student-total" data-label="รวม">0</td>
               </tr>
               <tr data-level="มัธยมศึกษาตอนต้น">
-                <td class="fw-bold">มัธยมศึกษาตอนต้น</td>
-                <td><input type="number" class="form-control student-male" min="0" value="0"></td>
-                <td><input type="number" class="form-control student-female" min="0" value="0"></td>
-                <td class="fw-bold student-total">0</td>
+                <td class="fw-bold" data-label="ระดับ">มัธยมศึกษาตอนต้น</td>
+                <td data-label="ชาย"><input type="number" class="form-control student-male" min="0" value="0" inputmode="numeric"></td>
+                <td data-label="หญิง"><input type="number" class="form-control student-female" min="0" value="0" inputmode="numeric"></td>
+                <td class="fw-bold student-total" data-label="รวม">0</td>
               </tr>
               <tr class="table-info" data-level="รวมทั้งหมด">
-                <td class="fw-bold">รวมทั้งหมด</td>
-                <td class="fw-bold" id="totalMaleStudents">0</td>
-                <td class="fw-bold" id="totalFemaleStudents">0</td>
-                <td class="fw-bold fs-5" id="grandTotalStudents">0</td>
+                <td class="fw-bold" data-label="ระดับ">รวมทั้งหมด</td>
+                <td class="fw-bold" id="totalMaleStudents" data-label="ชาย">0</td>
+                <td class="fw-bold" id="totalFemaleStudents" data-label="หญิง">0</td>
+                <td class="fw-bold fs-5" id="grandTotalStudents" data-label="รวม">0</td>
               </tr>
             </tbody>
           </table>
@@ -351,8 +726,31 @@ body {
       </div>
     </div>
 
+    <!-- Card: ข้อมูลผู้กรอก -->
+    <div class="card mb-4 shadow-sm card-custom" id="submitterSection">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">📝 ข้อมูลผู้กรอกแบบฟอร์ม</h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-bold">ผู้กรอกข้อมูล <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="submitterName" placeholder="ชื่อผู้กรอกข้อมูล" required>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-bold">เบอร์โทรศัพท์ผู้กรอกข้อมูล <span class="text-danger">*</span></label>
+            <input type="tel" class="form-control" id="submitterPhone" placeholder="0xx-xxx-xxxx" inputmode="tel" autocomplete="tel" required>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Footer Action Buttons -->
-    <div class="row g-2 mb-4">
+    <div class="row g-2 mb-4 action-bar">
+      <div class="mobile-action-summary">
+        <div>บุคลากร<strong><span id="mobileTotalStaff">0</span> คน</strong></div>
+        <div>นักเรียน<strong><span id="mobileGrandTotalStudents">0</span> คน</strong></div>
+      </div>
       <div class="col-6">
         <button type="button" class="btn btn-primary btn-lg w-100" onclick="submitForm()" id="submitBtn">
           💾 บันทึกข้อมูล
@@ -377,18 +775,24 @@ var extraStaffCounter = 0;
 function addExtraStaffRow() {
   extraStaffCounter++;
   var rowId = 'extra-staff-' + extraStaffCounter;
-  var tbody = document.getElementById('extraStaffBody');
+  var tbody = document.getElementById('staffTableBody');
   var row = document.createElement('tr');
   row.id = rowId;
   row.dataset.type = 'extra';
   row.innerHTML =
-    '<td><input type="text" class="form-control extra-position" placeholder="ชื่อตำแหน่ง เช่น แม่ครัว"></td>' +
-    '<td><input type="number" class="form-control extra-count" min="0" value="0"></td>' +
-    '<td><input type="text" class="form-control extra-detail" placeholder="หมายเหตุ"></td>' +
-    '<td><button type="button" class="btn btn-outline-danger btn-sm" onclick="removeExtraStaffRow(\'' + rowId + '\')">🗑️ ลบ</button></td>';
+    '<td data-label="ชื่อตำแหน่ง"><input type="text" class="form-control extra-position" placeholder="ชื่อตำแหน่ง เช่น แม่ครัว"></td>' +
+    '<td data-label="จำนวน"><input type="number" class="form-control extra-count" min="0" value="0" inputmode="numeric"></td>' +
+    '<td data-label="รายละเอียด / หมายเหตุ"><input type="text" class="form-control extra-detail" placeholder="หมายเหตุ"></td>' +
+    '<td data-label="จัดการ"><button type="button" class="btn btn-outline-danger btn-sm w-100" onclick="removeExtraStaffRow(\'' + rowId + '\')">🗑️ ลบ</button></td>';
   tbody.appendChild(row);
+  row.querySelectorAll('.form-control').forEach(function(input) {
+    input.addEventListener('input', function() {
+      this.classList.remove('is-invalid');
+    });
+  });
   // Recalculate on input
   row.querySelector('.extra-count').addEventListener('input', calculateStaffTotal);
+  attachNumberInputGuard(row.querySelector('.extra-count'));
   calculateStaffTotal();
 }
 
@@ -402,25 +806,16 @@ function removeExtraStaffRow(rowId) {
 
 function calculateStaffTotal() {
   var total = 0;
-  // Standard positions
-  var standardRows = document.querySelectorAll('#standardStaffTable tbody tr');
-  standardRows.forEach(function(row) {
-    var countInput = row.querySelector('.staff-count');
-    if (countInput) {
-      var val = parseInt(countInput.value) || 0;
-      total += val;
-    }
-  });
-  // Extra positions
-  var extraRows = document.querySelectorAll('#extraStaffTable tbody tr');
-  extraRows.forEach(function(row) {
-    var countInput = row.querySelector('.extra-count');
+  var staffRows = document.querySelectorAll('#staffTable tbody tr');
+  staffRows.forEach(function(row) {
+    var countInput = row.querySelector('.staff-count, .extra-count');
     if (countInput) {
       var val = parseInt(countInput.value) || 0;
       total += val;
     }
   });
   document.getElementById('totalStaffDisplay').textContent = total;
+  updateMobileSummary();
   return total;
 }
 
@@ -449,38 +844,41 @@ function calculateStudentTotal() {
   document.getElementById('totalMaleStudents').textContent = totalMale;
   document.getElementById('totalFemaleStudents').textContent = totalFemale;
   document.getElementById('grandTotalStudents').textContent = totalMale + totalFemale;
+  updateMobileSummary();
   return { totalMale: totalMale, totalFemale: totalFemale, grandTotal: totalMale + totalFemale };
+}
+
+function updateMobileSummary() {
+  var mobileTotalStaff = document.getElementById('mobileTotalStaff');
+  var mobileGrandTotalStudents = document.getElementById('mobileGrandTotalStudents');
+  var totalStaffDisplay = document.getElementById('totalStaffDisplay');
+  var grandTotalStudents = document.getElementById('grandTotalStudents');
+
+  if (mobileTotalStaff && totalStaffDisplay) {
+    mobileTotalStaff.textContent = totalStaffDisplay.textContent || '0';
+  }
+
+  if (mobileGrandTotalStudents && grandTotalStudents) {
+    mobileGrandTotalStudents.textContent = grandTotalStudents.textContent || '0';
+  }
 }
 
 // ==================== Collect Data ====================
 function collectStaffData() {
   var staff = [];
-  // Standard positions
-  var standardRows = document.querySelectorAll('#standardStaffTable tbody tr');
-  standardRows.forEach(function(row) {
+  var staffRows = document.querySelectorAll('#staffTable tbody tr');
+  staffRows.forEach(function(row) {
     var position = row.dataset.position;
     var type = row.dataset.type;
-    var countInput = row.querySelector('.staff-count');
-    var detailInput = row.querySelector('.staff-detail');
-    if (position) {
-      staff.push({
-        type: type || 'standard',
-        position: position,
-        count: parseInt(countInput ? countInput.value : 0) || 0,
-        detail: detailInput ? detailInput.value : ''
-      });
-    }
-  });
-  // Extra positions
-  var extraRows = document.querySelectorAll('#extraStaffTable tbody tr');
-  extraRows.forEach(function(row) {
     var positionInput = row.querySelector('.extra-position');
-    var countInput = row.querySelector('.extra-count');
-    var detailInput = row.querySelector('.extra-detail');
-    if (positionInput) {
+    var countInput = row.querySelector('.staff-count, .extra-count');
+    var detailInput = row.querySelector('.staff-detail, .extra-detail');
+    var resolvedPosition = position || (positionInput ? positionInput.value.trim() : '');
+
+    if (resolvedPosition || positionInput) {
       staff.push({
-        type: 'extra',
-        position: positionInput.value || '',
+        type: type || 'extra',
+        position: resolvedPosition,
         count: parseInt(countInput ? countInput.value : 0) || 0,
         detail: detailInput ? detailInput.value : ''
       });
@@ -538,6 +936,10 @@ function collectFormData() {
       deputy2Name: document.getElementById('deputy2Name').value.trim(),
       deputy2Phone: document.getElementById('deputy2Phone').value.trim()
     },
+    submitter: {
+      submitterName: document.getElementById('submitterName').value.trim(),
+      submitterPhone: document.getElementById('submitterPhone').value.trim()
+    },
     staff: collectStaffData(),
     students: students,
     summary: {
@@ -551,25 +953,39 @@ function collectFormData() {
 
 // ==================== Validation ====================
 function validateFormData() {
+  clearValidationStates();
+
   var schoolName = document.getElementById('schoolName').value.trim();
   var centerNo = document.getElementById('centerNo').value.trim();
   var district = document.getElementById('district').value.trim();
+  var submitterName = document.getElementById('submitterName').value.trim();
+  var submitterPhone = document.getElementById('submitterPhone').value.trim();
   var directorName = document.getElementById('directorName').value.trim();
   var directorPhone = document.getElementById('directorPhone').value.trim();
 
   var errors = [];
-  if (!schoolName) errors.push('ชื่อโรงเรียน');
-  if (!centerNo) errors.push('ศูนย์ที่');
-  if (!district) errors.push('อำเภอ');
-  if (!directorName) errors.push('ชื่อผู้อำนวยการ');
-  if (!directorPhone) errors.push('หมายเลขโทรศัพท์ผู้อำนวยการ');
+  var invalidFields = [];
 
-  if (directorPhone && !/^\d{9,10}$/.test(directorPhone.replace(/-/g, ''))) {
-    errors.push('หมายเลขโทรศัพท์ผู้อำนวยการต้องเป็นตัวเลข 9-10 หลัก');
+  addInvalidIfEmpty('schoolName', schoolName, 'ชื่อโรงเรียน', errors, invalidFields);
+  addInvalidIfEmpty('centerNo', centerNo, 'ศูนย์ที่', errors, invalidFields);
+  addInvalidIfEmpty('district', district, 'อำเภอ', errors, invalidFields);
+  addInvalidIfEmpty('submitterName', submitterName, 'ผู้กรอกข้อมูล', errors, invalidFields);
+  addInvalidIfEmpty('submitterPhone', submitterPhone, 'เบอร์โทรศัพท์ผู้กรอกข้อมูล', errors, invalidFields);
+  addInvalidIfEmpty('directorName', directorName, 'ชื่อผู้อำนวยการ', errors, invalidFields);
+  addInvalidIfEmpty('directorPhone', directorPhone, 'หมายเลขโทรศัพท์ผู้อำนวยการ', errors, invalidFields);
+
+  if (submitterPhone && !isValidPhoneNumber(submitterPhone)) {
+    errors.push('เบอร์โทรศัพท์ผู้กรอกข้อมูลต้องเป็นตัวเลข 9-10 หลัก');
+    invalidFields.push(document.getElementById('submitterPhone'));
   }
 
-  // Validate extra staff positions
-  var extraRows = document.querySelectorAll('#extraStaffTable tbody tr');
+  if (directorPhone && !isValidPhoneNumber(directorPhone)) {
+    errors.push('หมายเลขโทรศัพท์ผู้อำนวยการต้องเป็นตัวเลข 9-10 หลัก');
+    invalidFields.push(document.getElementById('directorPhone'));
+  }
+
+  // Validate added staff positions
+  var extraRows = document.querySelectorAll('#staffTable tbody tr[data-type="extra"]');
   extraRows.forEach(function(row) {
     var positionInput = row.querySelector('.extra-position');
     var countInput = row.querySelector('.extra-count');
@@ -577,7 +993,8 @@ function validateFormData() {
       var pos = positionInput.value.trim();
       var count = parseInt(countInput.value) || 0;
       if (count > 0 && !pos) {
-        errors.push('ตำแหน่งเพิ่มเติมที่มีจำนวนต้องระบุชื่อตำแหน่ง');
+        errors.push('ตำแหน่งที่เพิ่มใหม่และมีจำนวนต้องระบุชื่อตำแหน่ง');
+        invalidFields.push(positionInput);
       }
     }
   });
@@ -587,19 +1004,72 @@ function validateFormData() {
   numberInputs.forEach(function(input) {
     if (parseInt(input.value) < 0) {
       errors.push('จำนวนต้องไม่ติดลบ');
+      invalidFields.push(input);
     }
   });
 
   if (errors.length > 0) {
+    invalidFields.forEach(function(field) {
+      field.classList.add('is-invalid');
+    });
+
     Swal.fire({
       icon: 'warning',
       title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
       html: errors.join('<br>'),
       confirmButtonText: 'ตกลง'
+    }).then(function() {
+      focusFirstInvalidField(invalidFields);
     });
     return false;
   }
   return true;
+}
+
+function addInvalidIfEmpty(id, value, label, errors, invalidFields) {
+  if (!value) {
+    errors.push(label);
+    invalidFields.push(document.getElementById(id));
+  }
+}
+
+function clearValidationStates() {
+  var invalidInputs = document.querySelectorAll('.is-invalid');
+  invalidInputs.forEach(function(input) {
+    input.classList.remove('is-invalid');
+  });
+}
+
+function isValidPhoneNumber(value) {
+  return /^\d{9,10}$/.test(String(value || '').replace(/-/g, ''));
+}
+
+function focusFirstInvalidField(invalidFields) {
+  var firstField = invalidFields.find(function(field) {
+    return field && typeof field.focus === 'function';
+  });
+
+  if (!firstField) return;
+
+  firstField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(function() {
+    firstField.focus({ preventScroll: true });
+  }, 250);
+}
+
+function attachNumberInputGuard(input) {
+  if (!input) return;
+
+  input.addEventListener('input', function() {
+    this.classList.remove('is-invalid');
+    if (this.value !== '' && parseInt(this.value) < 0) {
+      this.value = 0;
+    }
+  });
+
+  input.addEventListener('change', function() {
+    if (parseInt(this.value) < 0) this.value = 0;
+  });
 }
 
 // ==================== Submit Form ====================
@@ -609,18 +1079,68 @@ function submitForm() {
   var formData = collectFormData();
 
   Swal.fire({
-    title: 'ยืนยันการบันทึกข้อมูลหรือไม่?',
-    text: 'โรงเรียน: ' + formData.school.schoolName,
+    title: 'ตรวจสอบข้อมูลก่อนบันทึก',
+    html: renderFormConfirmationSummary(formData),
     icon: 'question',
+    width: 900,
     showCancelButton: true,
-    confirmButtonText: 'ยืนยัน',
-    cancelButtonText: 'ยกเลิก',
+    confirmButtonText: 'ยืนยันบันทึก',
+    cancelButtonText: 'กลับไปแก้ไข',
     confirmButtonColor: '#0d6efd'
   }).then(function(result) {
     if (result.isConfirmed) {
       sendFormData(formData, false);
     }
   });
+}
+
+function renderFormConfirmationSummary(data) {
+  var html = '<div class="submission-detail">';
+  html += '<div class="alert alert-warning text-start mb-3">กรุณาตรวจสอบข้อมูลทั้งหมดก่อนกดยืนยันบันทึก</div>';
+
+  html += '<div class="submission-detail-section">';
+  html += '<h6 class="fw-bold">ข้อมูลสถานศึกษา</h6>';
+  html += '<div class="submission-detail-grid">';
+  html += renderDetailItem('ชื่อโรงเรียน', data.school.schoolName);
+  html += renderDetailItem('ศูนย์ที่', data.school.centerNo);
+  html += renderDetailItem('อำเภอ', data.school.district);
+  html += '</div></div>';
+
+  html += '<div class="submission-detail-section">';
+  html += '<h6 class="fw-bold">ข้อมูลผู้บริหาร</h6>';
+  html += '<div class="submission-detail-grid">';
+  html += renderDetailItem('ผู้อำนวยการ', data.administrators.directorName);
+  html += renderDetailItem('โทรศัพท์ผู้อำนวยการ', data.administrators.directorPhone);
+  html += renderDetailItem('รองผู้อำนวยการ คนที่ 1', data.administrators.deputy1Name || '-');
+  html += renderDetailItem('โทรศัพท์รองฯ คนที่ 1', data.administrators.deputy1Phone || '-');
+  html += renderDetailItem('รองผู้อำนวยการ คนที่ 2', data.administrators.deputy2Name || '-');
+  html += renderDetailItem('โทรศัพท์รองฯ คนที่ 2', data.administrators.deputy2Phone || '-');
+  html += '</div></div>';
+
+  html += '<div class="submission-detail-section">';
+  html += '<h6 class="fw-bold">ข้อมูลบุคลากร</h6>';
+  html += renderStaffSummaryTable(data.staff);
+  html += '<div class="alert alert-info fw-bold text-center mt-3 mb-0">รวมบุคลากรทั้งหมด: ' + escapeHtml(data.summary.totalStaff || 0) + ' คน</div>';
+  html += '</div>';
+
+  html += '<div class="submission-detail-section">';
+  html += '<h6 class="fw-bold">จำนวนนักเรียน</h6>';
+  html += renderStudentSummaryTable(data.students);
+  html += '<div class="alert alert-info fw-bold text-center mt-3 mb-0">';
+  html += 'ชาย ' + escapeHtml(data.summary.totalMaleStudents || 0) + ' คน | ';
+  html += 'หญิง ' + escapeHtml(data.summary.totalFemaleStudents || 0) + ' คน | ';
+  html += 'รวม ' + escapeHtml(data.summary.grandTotalStudents || 0) + ' คน';
+  html += '</div></div>';
+
+  html += '<div class="submission-detail-section">';
+  html += '<h6 class="fw-bold">ข้อมูลผู้กรอกแบบฟอร์ม</h6>';
+  html += '<div class="submission-detail-grid">';
+  html += renderDetailItem('ผู้กรอกข้อมูล', data.submitter.submitterName);
+  html += renderDetailItem('เบอร์โทรศัพท์ผู้กรอกข้อมูล', data.submitter.submitterPhone);
+  html += '</div></div>';
+
+  html += '</div>';
+  return html;
 }
 
 function sendFormData(formData, forceUpdate) {
@@ -639,11 +1159,15 @@ function sendFormData(formData, forceUpdate) {
   google.script.run
     .withSuccessHandler(function(response) {
       Swal.close();
+      if (!response) {
+        showServerResponseError('ไม่สามารถบันทึกข้อมูลได้');
+        return;
+      }
       if (response.success) {
         Swal.fire({
           icon: 'success',
           title: 'บันทึกข้อมูลเรียบร้อยแล้ว',
-          confirmButtonText: 'กรอกข้อมูลใหม่',
+          confirmButtonText: 'OK',
           confirmButtonColor: '#198754'
         }).then(function() {
           resetForm();
@@ -687,6 +1211,8 @@ function resetForm() {
   document.getElementById('schoolName').value = '';
   document.getElementById('centerNo').value = '';
   document.getElementById('district').value = '';
+  document.getElementById('submitterName').value = '';
+  document.getElementById('submitterPhone').value = '';
   document.getElementById('directorName').value = '';
   document.getElementById('directorPhone').value = '';
   document.getElementById('deputy1Name').value = '';
@@ -694,14 +1220,15 @@ function resetForm() {
   document.getElementById('deputy2Name').value = '';
   document.getElementById('deputy2Phone').value = '';
 
-  // Reset standard staff
-  var standardCountInputs = document.querySelectorAll('#standardStaffTable .staff-count');
+  // Reset fixed staff rows
+  var standardCountInputs = document.querySelectorAll('#staffTable .staff-count');
   standardCountInputs.forEach(function(input) { input.value = 0; });
-  var standardDetailInputs = document.querySelectorAll('#standardStaffTable .staff-detail');
+  var standardDetailInputs = document.querySelectorAll('#staffTable .staff-detail');
   standardDetailInputs.forEach(function(input) { input.value = ''; });
 
-  // Clear extra staff rows
-  document.getElementById('extraStaffBody').innerHTML = '';
+  // Clear added staff rows
+  var extraRows = document.querySelectorAll('#staffTable tbody tr[data-type="extra"]');
+  extraRows.forEach(function(row) { row.remove(); });
   extraStaffCounter = 0;
 
   // Reset student counts
@@ -716,24 +1243,281 @@ function resetForm() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ==================== Excel Download ====================
-function promptDownloadPassword() {
+// ==================== Admin Data Viewer / Excel Download ====================
+var adminViewerPassword = '';
+var adminSchoolsCache = null;
+
+function openAdminDataViewer() {
   Swal.fire({
-    title: 'กรุณากรอกรหัสผ่านสำหรับดาวน์โหลดข้อมูล',
+    title: 'กรุณากรอกรหัสผ่านผู้ดูแล',
     input: 'password',
     inputAttributes: {
       autocapitalize: 'off',
       autocorrect: 'off'
     },
     showCancelButton: true,
-    confirmButtonText: 'ดาวน์โหลด',
+    confirmButtonText: 'เปิดดูข้อมูล',
     cancelButtonText: 'ยกเลิก',
     confirmButtonColor: '#0d6efd'
   }).then(function(result) {
     if (result.isConfirmed) {
-      downloadExcel(result.value);
+      adminViewerPassword = result.value || '';
+      loadAdminSubmittedSchools();
     }
   });
+}
+
+function loadAdminSubmittedSchools() {
+  Swal.fire({
+    title: 'กำลังโหลดข้อมูล...',
+    allowOutsideClick: false,
+    didOpen: function() {
+      Swal.showLoading();
+    }
+  });
+
+  google.script.run
+    .withSuccessHandler(function(result) {
+      Swal.close();
+      if (!result) {
+        adminViewerPassword = '';
+        showServerResponseError('ไม่สามารถเปิดข้อมูลผู้ดูแลได้');
+        return;
+      }
+      if (result.success) {
+        adminSchoolsCache = result;
+        renderAdminSchoolsModal(result);
+      } else {
+        adminViewerPassword = '';
+        Swal.fire({
+          icon: 'error',
+          title: 'ไม่สามารถเปิดข้อมูลผู้ดูแลได้',
+          text: result.message || 'กรุณาตรวจสอบรหัสผ่านอีกครั้ง',
+          confirmButtonText: 'ตกลง'
+        });
+      }
+    })
+    .withFailureHandler(function(error) {
+      Swal.close();
+      adminViewerPassword = '';
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: error.message,
+        confirmButtonText: 'ตกลง'
+      });
+    })
+    .getAdminSubmittedSchools(adminViewerPassword);
+}
+
+function renderAdminSchoolsModal(result) {
+  var html = '<div class="schools-list-container">';
+  html += '<div class="admin-viewer-actions">';
+  html += '<button type="button" class="btn btn-primary w-100" id="adminDownloadExcelBtn">📥 ดาวน์โหลด Excel (.xlsx)</button>';
+  html += '</div>';
+  html += '<p class="text-center mb-3">ส่งข้อมูลแล้ว <strong>' + escapeHtml(result.totalSubmitted) + '</strong> โรงเรียน</p>';
+  html += '<input type="text" class="form-control mb-3" id="adminSchoolSearchInput" placeholder="🔍 ค้นหาชื่อโรงเรียน...">';
+  html += '<div id="adminSchoolsList">';
+  if (!result.schools || result.schools.length === 0) {
+    html += '<p class="text-center text-muted">ยังไม่มีโรงเรียนที่ส่งข้อมูล</p>';
+  } else {
+    result.schools.forEach(function(school, index) {
+      html += '<div class="school-item" data-name="' + escapeHtml(school.schoolName || '') + '">';
+      html += '<div class="d-flex justify-content-between align-items-center">';
+      html += '<div>';
+      html += '<button type="button" class="btn btn-link admin-school-link" data-school-id="' + escapeHtml(school.schoolId || '') + '">';
+      html += escapeHtml(index + 1) + '. ' + escapeHtml(school.schoolName || '-');
+      html += '</button>';
+      html += '<br><small class="text-muted">ศูนย์ที่: ' + escapeHtml(school.centerNo || '-') + ' | อำเภอ: ' + escapeHtml(school.district || '-') + '</small>';
+      html += '</div>';
+      html += '<small class="text-muted">' + escapeHtml(school.timestamp || '') + '</small>';
+      html += '</div></div>';
+    });
+  }
+  html += '</div></div>';
+
+  Swal.fire({
+    title: 'ข้อมูลที่ส่งแล้วสำหรับผู้ดูแล',
+    html: html,
+    width: 760,
+    confirmButtonText: 'ปิด',
+    didOpen: function() {
+      var downloadBtn = document.getElementById('adminDownloadExcelBtn');
+      if (downloadBtn) {
+        downloadBtn.addEventListener('click', downloadAdminExcel);
+      }
+
+      var searchInput = document.getElementById('adminSchoolSearchInput');
+      if (searchInput) {
+        searchInput.addEventListener('input', searchAdminSubmittedSchool);
+      }
+
+      var schoolButtons = document.querySelectorAll('.admin-school-link');
+      schoolButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+          showSchoolSubmissionDetail(this.dataset.schoolId);
+        });
+      });
+    }
+  });
+}
+
+function downloadAdminExcel() {
+  if (!adminViewerPassword) {
+    openAdminDataViewer();
+    return;
+  }
+
+  downloadExcel(adminViewerPassword);
+}
+
+function showSchoolSubmissionDetail(schoolId) {
+  if (!adminViewerPassword || !schoolId) return;
+
+  Swal.fire({
+    title: 'กำลังโหลดข้อมูลโรงเรียน...',
+    allowOutsideClick: false,
+    didOpen: function() {
+      Swal.showLoading();
+    }
+  });
+
+  google.script.run
+    .withSuccessHandler(function(result) {
+      Swal.close();
+      if (!result) {
+        showServerResponseError('ไม่สามารถโหลดข้อมูลได้');
+        if (adminSchoolsCache) renderAdminSchoolsModal(adminSchoolsCache);
+        return;
+      }
+      if (result.success) {
+        renderSchoolSubmissionDetail(result);
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'ไม่สามารถโหลดข้อมูลได้',
+          text: result.message || 'กรุณาลองใหม่อีกครั้ง',
+          confirmButtonText: 'ตกลง'
+        }).then(function() {
+          if (adminSchoolsCache) renderAdminSchoolsModal(adminSchoolsCache);
+        });
+      }
+    })
+    .withFailureHandler(function(error) {
+      Swal.close();
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: error.message,
+        confirmButtonText: 'ตกลง'
+      }).then(function() {
+        if (adminSchoolsCache) renderAdminSchoolsModal(adminSchoolsCache);
+      });
+    })
+    .getSchoolSubmissionDetail(adminViewerPassword, schoolId);
+}
+
+function renderSchoolSubmissionDetail(data) {
+  var html = '<div class="submission-detail">';
+  html += '<div class="submission-detail-section">';
+  html += '<h6 class="fw-bold">ข้อมูลสถานศึกษา</h6>';
+  html += '<div class="submission-detail-grid">';
+  html += renderDetailItem('ชื่อโรงเรียน', data.school.schoolName);
+  html += renderDetailItem('ศูนย์ที่', data.school.centerNo);
+  html += renderDetailItem('อำเภอ', data.school.district);
+  html += renderDetailItem('วันที่ส่งข้อมูล', data.school.timestamp);
+  html += renderDetailItem('ผู้กรอกข้อมูล', data.submitter ? data.submitter.submitterName : '-');
+  html += renderDetailItem('เบอร์โทรศัพท์ผู้กรอกข้อมูล', data.submitter ? data.submitter.submitterPhone : '-');
+  html += '</div></div>';
+
+  html += '<div class="submission-detail-section">';
+  html += '<h6 class="fw-bold">ข้อมูลผู้บริหาร</h6>';
+  html += '<div class="submission-detail-grid">';
+  html += renderDetailItem('ผู้อำนวยการ', data.administrators.directorName);
+  html += renderDetailItem('โทรศัพท์ผู้อำนวยการ', data.administrators.directorPhone);
+  html += renderDetailItem('รองผู้อำนวยการ คนที่ 1', data.administrators.deputy1Name || '-');
+  html += renderDetailItem('โทรศัพท์รองฯ คนที่ 1', data.administrators.deputy1Phone || '-');
+  html += renderDetailItem('รองผู้อำนวยการ คนที่ 2', data.administrators.deputy2Name || '-');
+  html += renderDetailItem('โทรศัพท์รองฯ คนที่ 2', data.administrators.deputy2Phone || '-');
+  html += '</div></div>';
+
+  html += '<div class="submission-detail-section">';
+  html += '<h6 class="fw-bold">ข้อมูลบุคลากร</h6>';
+  html += renderStaffSummaryTable(data.staff);
+  html += '<div class="alert alert-info fw-bold text-center mt-3 mb-0">รวมบุคลากรทั้งหมด: ' + escapeHtml(data.summary.totalStaff || 0) + ' คน</div>';
+  html += '</div>';
+
+  html += '<div class="submission-detail-section">';
+  html += '<h6 class="fw-bold">จำนวนนักเรียน</h6>';
+  html += renderStudentSummaryTable(data.students);
+  html += '<div class="alert alert-info fw-bold text-center mt-3 mb-0">';
+  html += 'ชาย ' + escapeHtml(data.summary.totalMaleStudents || 0) + ' คน | ';
+  html += 'หญิง ' + escapeHtml(data.summary.totalFemaleStudents || 0) + ' คน | ';
+  html += 'รวม ' + escapeHtml(data.summary.grandTotalStudents || 0) + ' คน';
+  html += '</div></div>';
+  html += '</div>';
+
+  Swal.fire({
+    titleText: data.school.schoolName || 'ข้อมูลโรงเรียน',
+    html: html,
+    width: 900,
+    showCancelButton: true,
+    confirmButtonText: 'กลับไปยังรายชื่อ',
+    cancelButtonText: 'ปิด',
+    confirmButtonColor: '#0d6efd'
+  }).then(function(result) {
+    if (result.isConfirmed && adminSchoolsCache) {
+      renderAdminSchoolsModal(adminSchoolsCache);
+    }
+  });
+}
+
+function renderDetailItem(label, value) {
+  return '<div class="submission-detail-item"><span class="submission-detail-label">' +
+    escapeHtml(label) + '</span>' + escapeHtml(value || '-') + '</div>';
+}
+
+function renderStaffSummaryTable(staffRows) {
+  var html = '<div class="table-responsive">';
+  html += '<table class="table table-sm table-bordered submission-detail-table">';
+  html += '<thead class="table-light"><tr><th>ตำแหน่ง</th><th>จำนวน</th><th>รายละเอียด</th></tr></thead><tbody>';
+
+  if (staffRows && staffRows.length > 0) {
+    staffRows.forEach(function(item) {
+      html += '<tr>';
+      html += '<td>' + escapeHtml(item.position || '-') + '</td>';
+      html += '<td class="text-end">' + escapeHtml(item.count || 0) + '</td>';
+      html += '<td>' + escapeHtml(item.detail || '-') + '</td>';
+      html += '</tr>';
+    });
+  } else {
+    html += '<tr><td colspan="3" class="text-center text-muted">ไม่มีข้อมูลบุคลากร</td></tr>';
+  }
+
+  html += '</tbody></table></div>';
+  return html;
+}
+
+function renderStudentSummaryTable(studentRows) {
+  var html = '<div class="table-responsive">';
+  html += '<table class="table table-sm table-bordered submission-detail-table">';
+  html += '<thead class="table-light"><tr><th>ระดับ</th><th>ชาย</th><th>หญิง</th><th>รวม</th></tr></thead><tbody>';
+
+  if (studentRows && studentRows.length > 0) {
+    studentRows.forEach(function(item) {
+      html += '<tr>';
+      html += '<td>' + escapeHtml(item.level || '-') + '</td>';
+      html += '<td class="text-end">' + escapeHtml(item.male || 0) + '</td>';
+      html += '<td class="text-end">' + escapeHtml(item.female || 0) + '</td>';
+      html += '<td class="text-end fw-bold">' + escapeHtml(item.total || 0) + '</td>';
+      html += '</tr>';
+    });
+  } else {
+    html += '<tr><td colspan="4" class="text-center text-muted">ไม่มีข้อมูลนักเรียน</td></tr>';
+  }
+
+  html += '</tbody></table></div>';
+  return html;
 }
 
 function downloadExcel(password) {
@@ -748,6 +1532,10 @@ function downloadExcel(password) {
   google.script.run
     .withSuccessHandler(function(response) {
       Swal.close();
+      if (!response) {
+        showServerResponseError('ไม่สามารถเตรียมไฟล์ Excel ได้');
+        return;
+      }
       if (response.success) {
         createWorkbook(response.data);
       } else {
@@ -772,6 +1560,16 @@ function downloadExcel(password) {
 }
 
 function createWorkbook(data) {
+  if (typeof XLSX === 'undefined') {
+    Swal.fire({
+      icon: 'error',
+      title: 'ไม่สามารถดาวน์โหลดได้',
+      text: 'ไม่พบไลบรารีสำหรับสร้างไฟล์ Excel กรุณารีเฟรชหน้าแล้วลองอีกครั้ง',
+      confirmButtonText: 'ตกลง'
+    });
+    return;
+  }
+
   var wb = XLSX.utils.book_new();
 
   for (var sheetName in data) {
@@ -781,13 +1579,31 @@ function createWorkbook(data) {
     }
   }
 
-  XLSX.writeFile(wb, 'ระบบรวบรวมข้อมูลสถานศึกษา.xlsx');
+  var fileName = 'ระบบรวบรวมข้อมูลสถานศึกษา.xlsx';
+  var workbookArray = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  var blob = new Blob([workbookArray], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+  var downloadUrl = URL.createObjectURL(blob);
+  var downloadLink = document.createElement('a');
+  downloadLink.href = downloadUrl;
+  downloadLink.download = fileName;
+  downloadLink.target = '_blank';
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
 
   Swal.fire({
     icon: 'success',
     title: 'ดาวน์โหลดสำเร็จ',
-    text: 'ไฟล์ Excel ถูกดาวน์โหลดเรียบร้อยแล้ว',
-    confirmButtonText: 'ตกลง'
+    html: '<p class="mb-3">หากไฟล์ไม่ดาวน์โหลดอัตโนมัติ ให้กดปุ่มด้านล่าง</p>' +
+      '<a class="btn btn-primary w-100" href="' + downloadUrl + '" download="' + escapeHtml(fileName) + '" target="_blank">📥 ดาวน์โหลด Excel อีกครั้ง</a>',
+    confirmButtonText: 'ตกลง',
+    willClose: function() {
+      setTimeout(function() {
+        URL.revokeObjectURL(downloadUrl);
+      }, 1000);
+    }
   });
 }
 
@@ -804,19 +1620,27 @@ function showSubmittedSchools() {
   google.script.run
     .withSuccessHandler(function(result) {
       Swal.close();
+      if (!result) {
+        showServerResponseError('ไม่สามารถโหลดรายชื่อโรงเรียนได้');
+        return;
+      }
       var html = '<div class="schools-list-container">';
-      html += '<p class="text-center mb-3">ส่งข้อมูลแล้ว <strong>' + result.totalSubmitted + '</strong> โรงเรียน จากทั้งหมด <strong>' + result.totalSchools + '</strong> โรงเรียน</p>';
+      if (result.totalSchools) {
+        html += '<p class="text-center mb-3">ส่งข้อมูลแล้ว <strong>' + result.totalSubmitted + '</strong> โรงเรียน จากทั้งหมด <strong>' + result.totalSchools + '</strong> โรงเรียน</p>';
+      } else {
+        html += '<p class="text-center mb-3">ส่งข้อมูลแล้ว <strong>' + result.totalSubmitted + '</strong> โรงเรียน</p>';
+      }
       html += '<input type="text" class="form-control mb-3" id="schoolSearchInput" placeholder="🔍 ค้นหาชื่อโรงเรียน..." oninput="searchSubmittedSchool()">';
       html += '<div id="schoolsList">';
       if (result.schools.length === 0) {
         html += '<p class="text-center text-muted">ยังไม่มีโรงเรียนที่ส่งข้อมูล</p>';
       } else {
         result.schools.forEach(function(school, index) {
-          html += '<div class="school-item" data-name="' + school.schoolName + '">';
+          html += '<div class="school-item" data-name="' + escapeHtml(school.schoolName || '') + '">';
           html += '<div class="d-flex justify-content-between align-items-center">';
-          html += '<div><strong>' + (index + 1) + '. ' + school.schoolName + '</strong>';
-          html += '<br><small class="text-muted">ศูนย์ที่: ' + school.centerNo + ' | อำเภอ: ' + school.district + '</small></div>';
-          html += '<small class="text-muted">' + school.timestamp + '</small>';
+          html += '<div><strong>' + escapeHtml(index + 1) + '. ' + escapeHtml(school.schoolName || '-') + '</strong>';
+          html += '<br><small class="text-muted">ศูนย์ที่: ' + escapeHtml(school.centerNo || '-') + ' | อำเภอ: ' + escapeHtml(school.district || '-') + '</small></div>';
+          html += '<small class="text-muted">' + escapeHtml(school.timestamp || '') + '</small>';
           html += '</div></div>';
         });
       }
@@ -850,10 +1674,45 @@ function searchSubmittedSchool() {
   });
 }
 
+function searchAdminSubmittedSchool() {
+  var input = document.getElementById('adminSchoolSearchInput');
+  var query = input ? input.value.toLowerCase() : '';
+  var items = document.querySelectorAll('#adminSchoolsList .school-item');
+  items.forEach(function(item) {
+    var name = (item.dataset.name || '').toLowerCase();
+    item.style.display = name.includes(query) ? '' : 'none';
+  });
+}
+
+function escapeHtml(value) {
+  return String(value === undefined || value === null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function showServerResponseError(title) {
+  Swal.fire({
+    icon: 'error',
+    title: title || 'เกิดข้อผิดพลาด',
+    text: 'ไม่ได้รับข้อมูลตอบกลับจากเซิร์ฟเวอร์ กรุณาลองใหม่อีกครั้ง',
+    confirmButtonText: 'ตกลง'
+  });
+}
+
 // ==================== Event Listeners ====================
 document.addEventListener('DOMContentLoaded', function() {
+  var formControls = document.querySelectorAll('.form-control');
+  formControls.forEach(function(input) {
+    input.addEventListener('input', function() {
+      this.classList.remove('is-invalid');
+    });
+  });
+
   // Auto-calculate staff totals on input
-  var staffCountInputs = document.querySelectorAll('#standardStaffTable .staff-count');
+  var staffCountInputs = document.querySelectorAll('#staffTable .staff-count');
   staffCountInputs.forEach(function(input) {
     input.addEventListener('input', calculateStaffTotal);
   });
@@ -867,10 +1726,10 @@ document.addEventListener('DOMContentLoaded', function() {
   // Prevent negative numbers
   var numberInputs = document.querySelectorAll('input[type="number"]');
   numberInputs.forEach(function(input) {
-    input.addEventListener('change', function() {
-      if (parseInt(this.value) < 0) this.value = 0;
-    });
+    attachNumberInputGuard(input);
   });
+
+  updateMobileSummary();
 });
 </script>
 </body>

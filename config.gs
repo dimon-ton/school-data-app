@@ -24,7 +24,11 @@ function initializeScriptProperties(spreadsheetId, adminPassword, totalSchools) 
   var props = PropertiesService.getScriptProperties();
   props.setProperty('SPREADSHEET_ID', spreadsheetId);
   props.setProperty('ADMIN_PASSWORD', adminPassword || 'roei2admin2026');
-  props.setProperty('TOTAL_SCHOOLS', totalSchools || '112');
+  if (totalSchools !== undefined && totalSchools !== null && totalSchools !== '') {
+    props.setProperty('TOTAL_SCHOOLS', String(totalSchools));
+  } else {
+    props.deleteProperty('TOTAL_SCHOOLS');
+  }
 }
 
 /**
@@ -43,9 +47,19 @@ function initializeSheets() {
       'Director Name', 'Director Phone',
       'Deputy 1 Name', 'Deputy 1 Phone',
       'Deputy 2 Name', 'Deputy 2 Phone',
-      'Total Staff', 'Total Male Students', 'Total Female Students', 'Grand Total Students'
+      'Total Staff', 'Total Male Students', 'Total Female Students', 'Grand Total Students',
+      'Submitter Name', 'Submitter Phone'
     ]);
-    schoolSheet.getRange(1, 1, 1, 15).setFontWeight('bold');
+    schoolSheet.getRange(1, 1, 1, 17).setFontWeight('bold');
+  } else {
+    var schoolHeaders = schoolSheet.getRange(1, 1, 1, 17).getValues()[0];
+    if (!schoolHeaders[15]) {
+      schoolSheet.getRange(1, 16).setValue('Submitter Name');
+    }
+    if (!schoolHeaders[16]) {
+      schoolSheet.getRange(1, 17).setValue('Submitter Phone');
+    }
+    schoolSheet.getRange(1, 1, 1, 17).setFontWeight('bold');
   }
 
   // StaffData headers

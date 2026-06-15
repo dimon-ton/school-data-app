@@ -14,11 +14,12 @@ function setupSpreadsheet() {
   schoolSheet.setName('SchoolData');
   
   // Add headers
-  schoolSheet.getRange(1, 1, 1, 15).setValues([[
+  schoolSheet.getRange(1, 1, 1, 17).setValues([[
     'timestamp', 'schoolId', 'schoolName', 'centerNo', 'district',
     'directorName', 'directorPhone', 'deputy1Name', 'deputy1Phone',
     'deputy2Name', 'deputy2Phone', 'totalStaff',
-    'totalMaleStudents', 'totalFemaleStudents', 'grandTotalStudents'
+    'totalMaleStudents', 'totalFemaleStudents', 'grandTotalStudents',
+    'submitterName', 'submitterPhone'
   ]]);
   
   // Create Staff sheet
@@ -128,6 +129,7 @@ function saveSchoolData(data, schoolId, timestamp) {
   var config = getConfig();
   var ss = SpreadsheetApp.openById(config.SPREADSHEET_ID);
   var sheet = ss.getSheetByName(config.SHEETS.SCHOOL);
+  ensureSchoolDataHeaders(sheet);
 
   sheet.appendRow([
     timestamp,
@@ -144,7 +146,9 @@ function saveSchoolData(data, schoolId, timestamp) {
     data.summary.totalStaff || 0,
     data.summary.totalMaleStudents || 0,
     data.summary.totalFemaleStudents || 0,
-    data.summary.grandTotalStudents || 0
+    data.summary.grandTotalStudents || 0,
+    data.submitter ? data.submitter.submitterName || '' : '',
+    data.submitter ? data.submitter.submitterPhone || '' : ''
   ]);
 }
 
@@ -153,6 +157,7 @@ function updateSchoolData(ss, data, schoolId, timestamp) {
 
   // Find and update SchoolData row
   var schoolSheet = ss.getSheetByName(config.SHEETS.SCHOOL);
+  ensureSchoolDataHeaders(schoolSheet);
   var schoolRows = schoolSheet.getDataRange().getValues();
   var schoolRowNum = -1;
 
@@ -164,7 +169,7 @@ function updateSchoolData(ss, data, schoolId, timestamp) {
   }
 
   if (schoolRowNum > 0) {
-    schoolSheet.getRange(schoolRowNum, 1, 1, 15).setValues([[
+    schoolSheet.getRange(schoolRowNum, 1, 1, 17).setValues([[
       timestamp, schoolId,
       data.school.schoolName, data.school.centerNo, data.school.district,
       data.administrators.directorName, data.administrators.directorPhone,
@@ -173,7 +178,9 @@ function updateSchoolData(ss, data, schoolId, timestamp) {
       data.summary.totalStaff || 0,
       data.summary.totalMaleStudents || 0,
       data.summary.totalFemaleStudents || 0,
-      data.summary.grandTotalStudents || 0
+      data.summary.grandTotalStudents || 0,
+      data.submitter ? data.submitter.submitterName || '' : '',
+      data.submitter ? data.submitter.submitterPhone || '' : ''
     ]]);
   }
 
@@ -197,6 +204,19 @@ function updateSchoolData(ss, data, schoolId, timestamp) {
   // Save new staff and student data
   saveStaffData(data.staff || [], schoolId, data.school.schoolName, timestamp);
   saveStudentData(data.students || [], schoolId, data.school.schoolName, timestamp);
+}
+
+function ensureSchoolDataHeaders(sheet) {
+  if (!sheet) return;
+
+  var headers = sheet.getRange(1, 1, 1, 17).getValues()[0];
+  if (!headers[15]) {
+    sheet.getRange(1, 16).setValue('Submitter Name');
+  }
+  if (!headers[16]) {
+    sheet.getRange(1, 17).setValue('Submitter Phone');
+  }
+  sheet.getRange(1, 1, 1, 17).setFontWeight('bold');
 }
 
 function saveStaffData(staffArray, schoolId, schoolName, timestamp) {
@@ -259,7 +279,10 @@ function getWorkbookData(password) {
 
     var sheet = ss.getSheetByName(sheetName);
     if (sheet) {
-      var data = sheet.getDataRange().getValues();
+      if (sheetName === config.SHEETS.SCHOOL) {
+        ensureSchoolDataHeaders(sheet);
+      }
+      var data = normalizeWorkbookDataForClient(sheet.getDataRange().getValues());
       result[sheetName] = data;
     }
   }
@@ -267,12 +290,25 @@ function getWorkbookData(password) {
   return { success: true, data: result };
 }
 
+function normalizeWorkbookDataForClient(data) {
+  return data.map(function(row) {
+    return row.map(function(cell) {
+      if (cell instanceof Date) {
+        return Utilities.formatDate(cell, Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss');
+      }
+      if (cell === null || cell === undefined) {
+        return '';
+      }
+      return cell;
+    });
+  });
+}
+
 function getSubmittedSchools() {
   var config = getConfig();
   var ss = SpreadsheetApp.openById(config.SPREADSHEET_ID);
   var sheet = ss.getSheetByName(config.SHEETS.SCHOOL);
   var data = sheet.getDataRange().getValues();
-  var totalSchools = parseInt(PropertiesService.getScriptProperties().getProperty(config.TOTAL_SCHOOLS_KEY)) || 0;
 
   var schools = [];
   for (var i = 1; i < data.length; i++) {
@@ -287,7 +323,103 @@ function getSubmittedSchools() {
 
   return {
     totalSubmitted: schools.length,
-    totalSchools: totalSchools,
+    totalSchools: null,
     schools: schools
+  };
+}
+
+function getAdminSubmittedSchools(password) {
+  if (!verifyDownloadPassword(password)) {
+    return { success: false, message: 'รหัสผ่านไม่ถูกต้อง' };
+  }
+
+  var result = getSubmittedSchools();
+  result.success = true;
+  return result;
+}
+
+function getSchoolSubmissionDetail(password, schoolId) {
+  if (!verifyDownloadPassword(password)) {
+    return { success: false, message: 'รหัสผ่านไม่ถูกต้อง' };
+  }
+
+  var config = getConfig();
+  var ss = SpreadsheetApp.openById(config.SPREADSHEET_ID);
+  var schoolSheet = ss.getSheetByName(config.SHEETS.SCHOOL);
+  var staffSheet = ss.getSheetByName(config.SHEETS.STAFF);
+  var studentSheet = ss.getSheetByName(config.SHEETS.STUDENT);
+  var schoolRows = schoolSheet.getDataRange().getValues();
+  var schoolRow = null;
+
+  for (var i = 1; i < schoolRows.length; i++) {
+    if (String(schoolRows[i][1]) === String(schoolId)) {
+      schoolRow = schoolRows[i];
+      break;
+    }
+  }
+
+  if (!schoolRow) {
+    return { success: false, message: 'ไม่พบข้อมูลโรงเรียนที่เลือก' };
+  }
+
+  var staff = [];
+  if (staffSheet) {
+    var staffRows = staffSheet.getDataRange().getValues();
+    for (var s = 1; s < staffRows.length; s++) {
+      if (String(staffRows[s][1]) === String(schoolId)) {
+        staff.push({
+          type: staffRows[s][3] || '',
+          position: staffRows[s][4] || '',
+          count: parseInt(staffRows[s][5]) || 0,
+          detail: staffRows[s][6] || ''
+        });
+      }
+    }
+  }
+
+  var students = [];
+  if (studentSheet) {
+    var studentRows = studentSheet.getDataRange().getValues();
+    for (var st = 1; st < studentRows.length; st++) {
+      if (String(studentRows[st][1]) === String(schoolId)) {
+        students.push({
+          level: studentRows[st][3] || '',
+          male: parseInt(studentRows[st][4]) || 0,
+          female: parseInt(studentRows[st][5]) || 0,
+          total: parseInt(studentRows[st][6]) || 0
+        });
+      }
+    }
+  }
+
+  return {
+    success: true,
+    school: {
+      schoolId: schoolRow[1],
+      schoolName: schoolRow[2],
+      centerNo: schoolRow[3],
+      district: schoolRow[4],
+      timestamp: schoolRow[0] ? new Date(schoolRow[0]).toLocaleString('th-TH') : ''
+    },
+    administrators: {
+      directorName: schoolRow[5] || '',
+      directorPhone: schoolRow[6] || '',
+      deputy1Name: schoolRow[7] || '',
+      deputy1Phone: schoolRow[8] || '',
+      deputy2Name: schoolRow[9] || '',
+      deputy2Phone: schoolRow[10] || ''
+    },
+    summary: {
+      totalStaff: parseInt(schoolRow[11]) || 0,
+      totalMaleStudents: parseInt(schoolRow[12]) || 0,
+      totalFemaleStudents: parseInt(schoolRow[13]) || 0,
+      grandTotalStudents: parseInt(schoolRow[14]) || 0
+    },
+    submitter: {
+      submitterName: schoolRow[15] || '',
+      submitterPhone: schoolRow[16] || ''
+    },
+    staff: staff,
+    students: students
   };
 }

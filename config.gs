@@ -1,0 +1,78 @@
+/**
+ * config.gs - Configuration constants
+ * Uses Script Properties for sensitive data
+ */
+
+function getConfig() {
+  return {
+    SPREADSHEET_ID: PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID') || '1hB7KnJG10LIt2QLiDb48xyuIerSySTEOZdsokocBKHU',
+    SHEETS: {
+      SCHOOL: 'SchoolData',
+      STAFF: 'StaffData',
+      STUDENT: 'StudentData'
+    },
+    ALLOWED_EXPORT_SHEETS: ['SchoolData', 'StaffData', 'StudentData'],
+    ADMIN_PASSWORD_KEY: 'ADMIN_PASSWORD',
+    TOTAL_SCHOOLS_KEY: 'TOTAL_SCHOOLS'
+  };
+}
+
+/**
+ * Initialize Script Properties (run once during setup)
+ */
+function initializeScriptProperties(spreadsheetId, adminPassword, totalSchools) {
+  var props = PropertiesService.getScriptProperties();
+  props.setProperty('SPREADSHEET_ID', spreadsheetId);
+  props.setProperty('ADMIN_PASSWORD', adminPassword || 'roei2admin2026');
+  props.setProperty('TOTAL_SCHOOLS', totalSchools || '112');
+}
+
+/**
+ * Initialize spreadsheet sheets with headers (run once)
+ */
+function initializeSheets() {
+  var config = getConfig();
+  var ss = SpreadsheetApp.openById(config.SPREADSHEET_ID);
+
+  // SchoolData headers
+  var schoolSheet = ss.getSheetByName(config.SHEETS.SCHOOL);
+  if (!schoolSheet) {
+    schoolSheet = ss.insertSheet(config.SHEETS.SCHOOL);
+    schoolSheet.appendRow([
+      'Timestamp', 'School ID', 'School Name', 'Center No', 'District',
+      'Director Name', 'Director Phone',
+      'Deputy 1 Name', 'Deputy 1 Phone',
+      'Deputy 2 Name', 'Deputy 2 Phone',
+      'Total Staff', 'Total Male Students', 'Total Female Students', 'Grand Total Students'
+    ]);
+    schoolSheet.getRange(1, 1, 1, 15).setFontWeight('bold');
+  }
+
+  // StaffData headers
+  var staffSheet = ss.getSheetByName(config.SHEETS.STAFF);
+  if (!staffSheet) {
+    staffSheet = ss.insertSheet(config.SHEETS.STAFF);
+    staffSheet.appendRow([
+      'Timestamp', 'School ID', 'School Name', 'Position Type', 'Position Name', 'Count', 'Detail'
+    ]);
+    staffSheet.getRange(1, 1, 1, 7).setFontWeight('bold');
+  }
+
+  // StudentData headers
+  var studentSheet = ss.getSheetByName(config.SHEETS.STUDENT);
+  if (!studentSheet) {
+    studentSheet = ss.insertSheet(config.SHEETS.STUDENT);
+    studentSheet.appendRow([
+      'Timestamp', 'School ID', 'School Name', 'Level', 'Male', 'Female', 'Total'
+    ]);
+    studentSheet.getRange(1, 1, 1, 7).setFontWeight('bold');
+  }
+
+  // Remove default Sheet1 if exists
+  var defaultSheet = ss.getSheetByName('Sheet1');
+  if (defaultSheet && ss.getSheets().length > 1) {
+    ss.deleteSheet(defaultSheet);
+  }
+
+  return 'Sheets initialized successfully';
+}

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบรวบรวมข้อมูลสถานศึกษา</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+  <?!= include('css'); ?>
+</head>
+<body>
+  <div class="container-fluid py-4" style="max-width: 960px; margin: 0 auto;">
+
+    <!-- Header -->
+    <div class="text-center mb-4">
+      <h2 class="fw-bold" style="color: #0d6efd;">🏫 ระบบรวบรวมข้อมูลสถานศึกษา</h2>
+      <p class="text-muted">แบบฟอร์มกรอกข้อมูลทั่วไปของสถานศึกษา</p>
+    </div>
+
+    <!-- Top Action Buttons -->
+    <div class="row mb-3 g-2">
+      <div class="col-12 col-md-6">
+        <button class="btn btn-outline-primary w-100" onclick="promptDownloadPassword()">
+          📥 ดาวน์โหลดไฟล์ Excel (.xlsx)
+        </button>
+      </div>
+      <div class="col-12 col-md-6">
+        <button class="btn btn-outline-success w-100" onclick="showSubmittedSchools()">
+          ✅ ตรวจสอบโรงเรียนที่ส่งข้อมูลแล้ว
+        </button>
+      </div>
+    </div>
+
+    <!-- Card: ข้อมูลสถานศึกษา -->
+    <div class="card mb-4 shadow-sm card-custom">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">📋 ข้อมูลสถานศึกษา</h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-12 col-md-6 col-lg-4">
+            <label class="form-label fw-bold">ชื่อโรงเรียน <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="schoolName" placeholder="ชื่อโรงเรียน" required>
+          </div>
+          <div class="col-12 col-md-6 col-lg-4">
+            <label class="form-label fw-bold">ศูนย์ที่ <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="centerNo" placeholder="ศูนย์ที่" required>
+          </div>
+          <div class="col-12 col-md-6 col-lg-4">
+            <label class="form-label fw-bold">อำเภอ <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="district" placeholder="อำเภอ" required>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card: ข้อมูลผู้บริหาร -->
+    <div class="card mb-4 shadow-sm card-custom">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">👔 ข้อมูลผู้บริหารสถานศึกษา</h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-bold">ชื่อผู้อำนวยการสถานศึกษา <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="directorName" placeholder="ชื่อผู้อำนวยการ" required>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-bold">หมายเลขโทรศัพท์ผู้อำนวยการ <span class="text-danger">*</span></label>
+            <input type="tel" class="form-control" id="directorPhone" placeholder="0xx-xxx-xxxx" required>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label">ชื่อรองผู้อำนวยการ คนที่ 1</label>
+            <input type="text" class="form-control" id="deputy1Name" placeholder="ชื่อรองผู้อำนวยการ คนที่ 1">
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label">หมายเลขโทรศัพท์รองผู้อำนวยการ คนที่ 1</label>
+            <input type="tel" class="form-control" id="deputy1Phone" placeholder="0xx-xxx-xxxx">
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label">ชื่อรองผู้อำนวยการ คนที่ 2</label>
+            <input type="text" class="form-control" id="deputy2Name" placeholder="ชื่อรองผู้อำนวยการ คนที่ 2">
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label">หมายเลขโทรศัพท์รองผู้อำนวยการ คนที่ 2</label>
+            <input type="tel" class="form-control" id="deputy2Phone" placeholder="0xx-xxx-xxxx">
+          </div>
+        </div>
+        <div class="form-text mt-2">* ข้อมูลรองผู้อำนวยการสามารถเว้นว่างได้ หากไม่มี</div>
+      </div>
+    </div>
+
+    <!-- Card: ข้อมูลบุคลากร -->
+    <div class="card mb-4 shadow-sm card-custom">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">👥 ข้อมูลบุคลากรในสถานศึกษา</h5>
+      </div>
+      <div class="card-body">
+        <h6 class="fw-bold mb-3">ตำแหน่งมาตรฐาน</h6>
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle" id="standardStaffTable">
+            <thead class="table-light">
+              <tr>
+                <th style="width:45%">ตำแหน่ง</th>
+                <th style="width:20%">จำนวน</th>
+                <th style="width:30%">รายละเอียด / หมายเหตุ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-position="ข้าราชการครูผู้สอน" data-type="standard">
+                <td>ข้าราชการครูผู้สอน</td>
+                <td><input type="number" class="form-control staff-count" min="0" value="0"></td>
+                <td><input type="text" class="form-control staff-detail" placeholder="หมายเหตุ"></td>
+              </tr>
+              <tr data-position="พนักงานราชการ" data-type="standard">
+                <td>พนักงานราชการ</td>
+                <td><input type="number" class="form-control staff-count" min="0" value="0"></td>
+                <td><input type="text" class="form-control staff-detail" placeholder="หมายเหตุ"></td>
+              </tr>
+              <tr data-position="ครูอัตราจ้าง" data-type="standard">
+                <td>ครูอัตราจ้าง</td>
+                <td><input type="number" class="form-control staff-count" min="0" value="0"></td>
+                <td><input type="text" class="form-control staff-detail" placeholder="หมายเหตุ"></td>
+              </tr>
+              <tr data-position="ครูพี่เลี้ยงเด็กพิการ" data-type="standard">
+                <td>ครูพี่เลี้ยงเด็กพิการ</td>
+                <td><input type="number" class="form-control staff-count" min="0" value="0"></td>
+                <td><input type="text" class="form-control staff-detail" placeholder="หมายเหตุ"></td>
+              </tr>
+              <tr data-position="นักการภารโรง" data-type="standard">
+                <td>นักการภารโรง</td>
+                <td><input type="number" class="form-control staff-count" min="0" value="0"></td>
+                <td><input type="text" class="form-control staff-detail" placeholder="หมายเหตุ"></td>
+              </tr>
+              <tr data-position="ธุรการ" data-type="standard">
+                <td>ธุรการ</td>
+                <td><input type="number" class="form-control staff-count" min="0" value="0"></td>
+                <td><input type="text" class="form-control staff-detail" placeholder="หมายเหตุ"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h6 class="fw-bold mt-4 mb-3">ตำแหน่งเพิ่มเติม</h6>
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle" id="extraStaffTable">
+            <thead class="table-light">
+              <tr>
+                <th style="width:35%">ชื่อตำแหน่ง</th>
+                <th style="width:20%">จำนวน</th>
+                <th style="width:30%">รายละเอียด / หมายเหตุ</th>
+                <th style="width:15%">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="extraStaffBody">
+            </tbody>
+          </table>
+        </div>
+        <button type="button" class="btn btn-outline-primary btn-sm" onclick="addExtraStaffRow()">
+          ➕ เพิ่มตำแหน่ง
+        </button>
+
+        <div class="row mt-3">
+          <div class="col-12">
+            <div class="alert alert-info fw-bold text-center fs-5">
+              รวมบุคลากรทั้งหมด: <span id="totalStaffDisplay">0</span> คน
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card: จำนวนนักเรียน -->
+    <div class="card mb-4 shadow-sm card-custom">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">🎓 จำนวนนักเรียน (วันเปิดภาคเรียน)</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle" id="studentTable">
+            <thead class="table-light">
+              <tr>
+                <th>ระดับ</th>
+                <th>ชาย</th>
+                <th>หญิง</th>
+                <th>รวม</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-level="อนุบาล">
+                <td class="fw-bold">อนุบาล</td>
+                <td><input type="number" class="form-control student-male" min="0" value="0"></td>
+                <td><input type="number" class="form-control student-female" min="0" value="0"></td>
+                <td class="fw-bold student-total">0</td>
+              </tr>
+              <tr data-level="ประถมศึกษา">
+                <td class="fw-bold">ประถมศึกษา</td>
+                <td><input type="number" class="form-control student-male" min="0" value="0"></td>
+                <td><input type="number" class="form-control student-female" min="0" value="0"></td>
+                <td class="fw-bold student-total">0</td>
+              </tr>
+              <tr data-level="มัธยมศึกษาตอนต้น">
+                <td class="fw-bold">มัธยมศึกษาตอนต้น</td>
+                <td><input type="number" class="form-control student-male" min="0" value="0"></td>
+                <td><input type="number" class="form-control student-female" min="0" value="0"></td>
+                <td class="fw-bold student-total">0</td>
+              </tr>
+              <tr class="table-info" data-level="รวมทั้งหมด">
+                <td class="fw-bold">รวมทั้งหมด</td>
+                <td class="fw-bold" id="totalMaleStudents">0</td>
+                <td class="fw-bold" id="totalFemaleStudents">0</td>
+                <td class="fw-bold fs-5" id="grandTotalStudents">0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Action Buttons -->
+    <div class="row g-2 mb-4">
+      <div class="col-6">
+        <button type="button" class="btn btn-primary btn-lg w-100" onclick="submitForm()" id="submitBtn">
+          💾 บันทึกข้อมูล
+        </button>
+      </div>
+      <div class="col-6">
+        <button type="button" class="btn btn-outline-secondary btn-lg w-100" onclick="resetForm()">
+          🔄 ล้างฟอร์ม
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <?!= include('js'); ?>
+</body>
+</html>

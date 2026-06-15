@@ -1,0 +1,8 @@
+# .claspignore - push all files
+**/**
+!Code.gs
+!config.gs
+!index.html
+!css.html
+!js.html
+!appsscript.json

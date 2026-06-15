@@ -46,7 +46,8 @@ function setupSpreadsheet() {
 
 function doGet() {
   return HtmlService.createHtmlOutputFromFile('index')
-    .setTitle('ระบบรวบรวมข้อมูลสถานศึกษา')
+    .setTitle('แบบสำรวจข้อมูลข้าราชการครูและบุคลากรทางการศึกษา')
+    .setFaviconUrl('https://raw.githubusercontent.com/dimon-ton/school-data-app/master/assets/favicon-64.png')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }

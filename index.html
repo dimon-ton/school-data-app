@@ -123,7 +123,7 @@
   /* Mobile responsive overrides */
   @media (max-width: 576px) {
     body {
-      background: var(--surface);
+      background: var(--page-bg);
     }
 
     .container-fluid {
@@ -193,6 +193,7 @@
       border-radius: 0;
       margin-left: -12px;
       margin-right: -12px;
+      margin-bottom: 0.75rem !important;
       box-shadow: none !important;
       scroll-margin-top: 58px;
     }
@@ -212,6 +213,15 @@
 
     .card-body {
       padding: 12px;
+    }
+
+    .card-body > .row.mb-3,
+    .card-body > .table-responsive,
+    .card-body > h6,
+    .card-body > .alert,
+    .card-body > .btn-sm,
+    .card-body > #newStaffContent {
+      margin-bottom: 1rem !important;
     }
 
     .row.g-3 {
@@ -278,7 +288,7 @@
 
     .mobile-card-table {
       border-collapse: separate;
-      border-spacing: 0 10px;
+      border-spacing: 0 14px;
       margin-bottom: 0;
     }
 
@@ -297,7 +307,7 @@
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 10px;
+      padding: 12px;
     }
 
     .mobile-card-table td {
@@ -524,7 +534,6 @@
     <div class="text-center mb-4 app-header">
       <h2 class="fw-bold mb-1">แบบสำรวจข้อมูลข้าราชการครูและบุคลากรทางการศึกษาศูนย์เครือข่ายพัฒนาคุณภาพการศึกษาที่ 9 ทุ่งใหญ่</h2>
       <p class="fw-bold mb-1">ข้อมูล ณ วันที่ 10 มิถุนายน 2569</p>
-      <p class="text-muted mb-1">ข้อมูลข้าราชการครูแชะบุคลากรที่บรรจุตั้งแต่ 1 ตุลาคม 68 จนถึงปัจจุบัน </p>
     </div>
 
     <!-- Top Action Buttons -->
@@ -730,26 +739,38 @@
     <!-- Card: ข้อมูลข้าราชการครูบรรจุใหม่ -->
     <div class="card mb-4 shadow-sm card-custom" id="newStaffSection">
       <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">🆕 ข้อมูลข้าราชการครูและบุคลากรที่บรรจุตั้งแต่ 1 ตุลาคม 68 จนถึงปัจจุบัน</h5>
+        <h5 class="mb-0">🆕 ข้อมูลข้าราชการครูและบุคลากรที่บรรจุ/ย้ายมาดำรงตำแหน่งที่ ศูนย์เครือข่ายฯ ที่ 9 ตั้งแต่วันที่  1 ตุลาคม 68 จนถึงปัจจุบัน</h5>
       </div>
       <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-bordered align-middle mobile-card-table" id="newStaffTable">
-            <thead class="table-light">
-              <tr>
-                <th style="width:5%">#</th>
-                <th style="width:45%">ชื่อ - สกุล</th>
-                <th style="width:35%">ตำแหน่ง</th>
-                <th style="width:15%">จัดการ</th>
-              </tr>
-            </thead>
-            <tbody id="newStaffTableBody">
-            </tbody>
-          </table>
+        <div class="row mb-3">
+          <div class="col-12">
+            <label class="form-label fw-bold">มีข้าราชการครูและบุคลากรที่บรรจุ/ย้ายมาใหม่หรือไม่ <span class="text-danger">*</span></label>
+            <select class="form-select" id="hasNewStaff" onchange="toggleNewStaffContent()">
+              <option value="" selected disabled>--- เลือก ---</option>
+              <option value="ไม่มี">ไม่มี</option>
+              <option value="มี">มี</option>
+            </select>
+          </div>
         </div>
-        <button type="button" class="btn btn-outline-primary btn-sm mt-3" onclick="addNewStaffRow()">
-          ➕ เพิ่มรายชื่อ
-        </button>
+        <div id="newStaffContent" style="display: none;">
+          <div class="table-responsive">
+            <table class="table table-bordered align-middle mobile-card-table" id="newStaffTable">
+              <thead class="table-light">
+                <tr>
+                  <th style="width:5%">#</th>
+                  <th style="width:45%">ชื่อ - สกุล</th>
+                  <th style="width:35%">ตำแหน่ง</th>
+                  <th style="width:15%">จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="newStaffTableBody">
+              </tbody>
+            </table>
+          </div>
+          <button type="button" class="btn btn-outline-primary btn-sm mt-3" onclick="addNewStaffRow()">
+            ➕ เพิ่มรายชื่อ
+          </button>
+        </div>
       </div>
     </div>
 
@@ -833,6 +854,25 @@ function removeExtraStaffRow(rowId) {
 }
 
 // ==================== New Staff (บรรจุใหม่) Management ====================
+function toggleNewStaffContent() {
+  var select = document.getElementById('hasNewStaff');
+  var content = document.getElementById('newStaffContent');
+  if (!select || !content) return;
+
+  if (select.value === 'มี') {
+    content.style.display = '';
+    var tbody = document.getElementById('newStaffTableBody');
+    if (tbody && tbody.querySelectorAll('tr').length === 0) {
+      addNewStaffRow();
+    }
+  } else {
+    content.style.display = 'none';
+    var tbody = document.getElementById('newStaffTableBody');
+    if (tbody) tbody.innerHTML = '';
+    newStaffCounter = 0;
+  }
+}
+
 function addNewStaffRow() {
   newStaffCounter++;
   var rowId = 'new-staff-' + newStaffCounter;
@@ -949,7 +989,6 @@ function collectStaffData() {
   var staffRows = document.querySelectorAll('#staffTable tbody tr');
   staffRows.forEach(function(row) {
     var position = row.dataset.position;
-    var type = row.dataset.type;
     var positionInput = row.querySelector('.extra-position');
     var countInput = row.querySelector('.staff-count, .extra-count');
     var detailInput = row.querySelector('.staff-detail, .extra-detail');
@@ -957,7 +996,6 @@ function collectStaffData() {
 
     if (resolvedPosition || positionInput) {
       staff.push({
-        type: type || 'extra',
         position: resolvedPosition,
         count: parseInt(countInput ? countInput.value : 0) || 0,
         detail: detailInput ? detailInput.value : ''
@@ -1022,6 +1060,7 @@ function collectFormData() {
     },
     staff: collectStaffData(),
     newStaff: collectNewStaffData(),
+    hasNewStaff: document.getElementById('hasNewStaff').value,
     students: students,
     summary: {
       totalStaff: totalStaff,
@@ -1054,6 +1093,12 @@ function validateFormData() {
   addInvalidIfEmpty('submitterPhone', submitterPhone, 'เบอร์โทรศัพท์ผู้กรอกข้อมูล', errors, invalidFields);
   addInvalidIfEmpty('directorName', directorName, 'ชื่อผู้อำนวยการ', errors, invalidFields);
   addInvalidIfEmpty('directorPhone', directorPhone, 'หมายเลขโทรศัพท์ผู้อำนวยการ', errors, invalidFields);
+
+  var hasNewStaff = document.getElementById('hasNewStaff').value;
+  if (!hasNewStaff) {
+    errors.push('กรุณาเลือกว่ามีข้าราชการครูและบุคลากรที่บรรจุใหม่หรือไม่');
+    invalidFields.push(document.getElementById('hasNewStaff'));
+  }
 
   if (submitterPhone && !isValidPhoneNumber(submitterPhone)) {
     errors.push('เบอร์โทรศัพท์ผู้กรอกข้อมูลต้องเป็นตัวเลข 9-10 หลัก');
@@ -1215,7 +1260,11 @@ function renderFormConfirmationSummary(data) {
 
   html += '<div class="submission-detail-section">';
   html += '<h6 class="fw-bold">ข้อมูลข้าราชการครูและบุคลากรบรรจุใหม่</h6>';
-  html += renderNewStaffSummaryTable(data.newStaff);
+  if (data.hasNewStaff === 'มี') {
+    html += renderNewStaffSummaryTable(data.newStaff);
+  } else {
+    html += '<p class="text-center text-muted mb-0">ไม่มี</p>';
+  }
   html += '</div>';
 
   html += '<div class="submission-detail-section">';
@@ -1316,11 +1365,19 @@ function resetForm() {
   var extraRows = document.querySelectorAll('#staffTable tbody tr[data-type="extra"]');
   extraRows.forEach(function(row) { row.remove(); });
 
-  // Clear new staff rows and add back 1 empty row
+  // Clear new staff rows
   var newStaffTbody = document.getElementById('newStaffTableBody');
   if (newStaffTbody) newStaffTbody.innerHTML = '';
   newStaffCounter = 0;
-  addNewStaffRow();
+
+  var hasNewStaffSelect = document.getElementById('hasNewStaff');
+  if (hasNewStaffSelect) {
+    hasNewStaffSelect.selectedIndex = 0;
+  }
+  var newStaffContent = document.getElementById('newStaffContent');
+  if (newStaffContent) {
+    newStaffContent.style.display = 'none';
+  }
   extraStaffCounter = 0;
 
   // Reset student counts
@@ -1550,7 +1607,11 @@ function renderSchoolSubmissionDetail(data) {
 
   html += '<div class="submission-detail-section">';
   html += '<h6 class="fw-bold">ข้อมูลข้าราชการครูและบุคลากรบรรจุใหม่</h6>';
-  html += renderNewStaffSummaryTable(data.newStaff);
+  if (data.hasNewStaff === 'มี') {
+    html += renderNewStaffSummaryTable(data.newStaff);
+  } else {
+    html += '<p class="text-center text-muted mb-0">' + escapeHtml(data.hasNewStaff || 'ไม่มี') + '</p>';
+  }
   html += '</div>';
 
   html += '</div>';
@@ -1849,9 +1910,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   updateMobileSummary();
-
-  // Add initial empty row for new staff
-  addNewStaffRow();
 });
 </script>
 </body>

@@ -49,18 +49,21 @@ function initializeSheets() {
       'Deputy 1 Name', 'Deputy 1 Phone',
       'Deputy 2 Name', 'Deputy 2 Phone',
       'Total Staff', 'Total Male Students', 'Total Female Students', 'Grand Total Students',
-      'Submitter Name', 'Submitter Phone'
+      'Submitter Name', 'Submitter Phone', 'Has New Staff'
     ]);
-    schoolSheet.getRange(1, 1, 1, 17).setFontWeight('bold');
+    schoolSheet.getRange(1, 1, 1, 18).setFontWeight('bold');
   } else {
-    var schoolHeaders = schoolSheet.getRange(1, 1, 1, 17).getValues()[0];
+    var schoolHeaders = schoolSheet.getRange(1, 1, 1, 18).getValues()[0];
     if (!schoolHeaders[15]) {
       schoolSheet.getRange(1, 16).setValue('Submitter Name');
     }
     if (!schoolHeaders[16]) {
       schoolSheet.getRange(1, 17).setValue('Submitter Phone');
     }
-    schoolSheet.getRange(1, 1, 1, 17).setFontWeight('bold');
+    if (!schoolHeaders[17]) {
+      schoolSheet.getRange(1, 18).setValue('Has New Staff');
+    }
+    schoolSheet.getRange(1, 1, 1, 18).setFontWeight('bold');
   }
 
   // StaffData headers
@@ -68,9 +71,9 @@ function initializeSheets() {
   if (!staffSheet) {
     staffSheet = ss.insertSheet(config.SHEETS.STAFF);
     staffSheet.appendRow([
-      'Timestamp', 'School ID', 'School Name', 'Position Type', 'Position Name', 'Count', 'Detail'
+      'Timestamp', 'School ID', 'School Name', 'Position Name', 'Count', 'Detail'
     ]);
-    staffSheet.getRange(1, 1, 1, 7).setFontWeight('bold');
+    staffSheet.getRange(1, 1, 1, 6).setFontWeight('bold');
   }
 
   // StudentData headers

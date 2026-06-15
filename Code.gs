@@ -14,18 +14,18 @@ function setupSpreadsheet() {
   schoolSheet.setName('SchoolData');
   
   // Add headers
-  schoolSheet.getRange(1, 1, 1, 17).setValues([[
+  schoolSheet.getRange(1, 1, 1, 18).setValues([[
     'timestamp', 'schoolId', 'schoolName', 'centerNo', 'district',
     'directorName', 'directorPhone', 'deputy1Name', 'deputy1Phone',
     'deputy2Name', 'deputy2Phone', 'totalStaff',
     'totalMaleStudents', 'totalFemaleStudents', 'grandTotalStudents',
-    'submitterName', 'submitterPhone'
+    'submitterName', 'submitterPhone', 'hasNewStaff'
   ]]);
   
   // Create Staff sheet
   var staffSheet = ss.insertSheet('StaffData');
-  staffSheet.getRange(1, 1, 1, 7).setValues([[
-    'timestamp', 'schoolId', 'schoolName', 'type', 'position', 'count', 'detail'
+  staffSheet.getRange(1, 1, 1, 6).setValues([[
+    'timestamp', 'schoolId', 'schoolName', 'position', 'count', 'detail'
   ]]);
   
   // Create Student sheet
@@ -92,7 +92,9 @@ function saveFormData(data) {
       saveSchoolData(data, schoolId, timestamp);
       saveStaffData(data.staff || [], schoolId, data.school.schoolName, timestamp);
       saveStudentData(data.students || [], schoolId, data.school.schoolName, timestamp);
-      saveNewStaffData(data.newStaff || [], schoolId, data.school.schoolName, timestamp);
+      if (data.hasNewStaff === 'มี') {
+        saveNewStaffData(data.newStaff || [], schoolId, data.school.schoolName, timestamp);
+      }
     }
 
     return {
@@ -149,7 +151,8 @@ function saveSchoolData(data, schoolId, timestamp) {
     data.summary.totalFemaleStudents || 0,
     data.summary.grandTotalStudents || 0,
     data.submitter ? data.submitter.submitterName || '' : '',
-    data.submitter ? data.submitter.submitterPhone || '' : ''
+    data.submitter ? data.submitter.submitterPhone || '' : '',
+    data.hasNewStaff || ''
   ]);
 }
 
@@ -170,7 +173,7 @@ function updateSchoolData(ss, data, schoolId, timestamp) {
   }
 
   if (schoolRowNum > 0) {
-    schoolSheet.getRange(schoolRowNum, 1, 1, 17).setValues([[
+    schoolSheet.getRange(schoolRowNum, 1, 1, 18).setValues([[
       timestamp, schoolId,
       data.school.schoolName, data.school.centerNo, data.school.district,
       data.administrators.directorName, data.administrators.directorPhone,
@@ -181,7 +184,8 @@ function updateSchoolData(ss, data, schoolId, timestamp) {
       data.summary.totalFemaleStudents || 0,
       data.summary.grandTotalStudents || 0,
       data.submitter ? data.submitter.submitterName || '' : '',
-      data.submitter ? data.submitter.submitterPhone || '' : ''
+      data.submitter ? data.submitter.submitterPhone || '' : '',
+      data.hasNewStaff || ''
     ]]);
   }
 
@@ -212,23 +216,27 @@ function updateSchoolData(ss, data, schoolId, timestamp) {
     }
   }
 
-  // Save new staff and student data
   saveStaffData(data.staff || [], schoolId, data.school.schoolName, timestamp);
   saveStudentData(data.students || [], schoolId, data.school.schoolName, timestamp);
-  saveNewStaffData(data.newStaff || [], schoolId, data.school.schoolName, timestamp);
+  if (data.hasNewStaff === 'มี') {
+    saveNewStaffData(data.newStaff || [], schoolId, data.school.schoolName, timestamp);
+  }
 }
 
 function ensureSchoolDataHeaders(sheet) {
   if (!sheet) return;
 
-  var headers = sheet.getRange(1, 1, 1, 17).getValues()[0];
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
   if (!headers[15]) {
     sheet.getRange(1, 16).setValue('Submitter Name');
   }
   if (!headers[16]) {
     sheet.getRange(1, 17).setValue('Submitter Phone');
   }
-  sheet.getRange(1, 1, 1, 17).setFontWeight('bold');
+  if (!headers[17]) {
+    sheet.getRange(1, 18).setValue('Has New Staff');
+  }
+  sheet.getRange(1, 1, 1, 18).setFontWeight('bold');
 }
 
 function saveStaffData(staffArray, schoolId, schoolName, timestamp) {
@@ -242,7 +250,6 @@ function saveStaffData(staffArray, schoolId, schoolName, timestamp) {
       timestamp,
       schoolId,
       schoolName,
-      item.type || 'standard',
       item.position || '',
       parseInt(item.count) || 0,
       item.detail || ''
@@ -405,10 +412,9 @@ function getSchoolSubmissionDetail(password, schoolId) {
     for (var s = 1; s < staffRows.length; s++) {
       if (String(staffRows[s][1]) === String(schoolId)) {
         staff.push({
-          type: staffRows[s][3] || '',
-          position: staffRows[s][4] || '',
-          count: parseInt(staffRows[s][5]) || 0,
-          detail: staffRows[s][6] || ''
+          position: staffRows[s][3] || '',
+          count: parseInt(staffRows[s][4]) || 0,
+          detail: staffRows[s][5] || ''
         });
       }
     }
@@ -470,6 +476,7 @@ function getSchoolSubmissionDetail(password, schoolId) {
       submitterName: schoolRow[15] || '',
       submitterPhone: schoolRow[16] || ''
     },
+    hasNewStaff: schoolRow[17] || '',
     staff: staff,
     students: students,
     newStaff: newStaff

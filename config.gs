@@ -9,9 +9,10 @@ function getConfig() {
     SHEETS: {
       SCHOOL: 'SchoolData',
       STAFF: 'StaffData',
-      STUDENT: 'StudentData'
+      STUDENT: 'StudentData',
+      NEW_STAFF: 'NewStaffData'
     },
-    ALLOWED_EXPORT_SHEETS: ['SchoolData', 'StaffData', 'StudentData'],
+    ALLOWED_EXPORT_SHEETS: ['SchoolData', 'StaffData', 'StudentData', 'NewStaffData'],
     ADMIN_PASSWORD_KEY: 'ADMIN_PASSWORD',
     TOTAL_SCHOOLS_KEY: 'TOTAL_SCHOOLS'
   };
@@ -80,6 +81,16 @@ function initializeSheets() {
       'Timestamp', 'School ID', 'School Name', 'Level', 'Male', 'Female', 'Total'
     ]);
     studentSheet.getRange(1, 1, 1, 7).setFontWeight('bold');
+  }
+
+  // NewStaffData headers
+  var newStaffSheet = ss.getSheetByName(config.SHEETS.NEW_STAFF);
+  if (!newStaffSheet) {
+    newStaffSheet = ss.insertSheet(config.SHEETS.NEW_STAFF);
+    newStaffSheet.appendRow([
+      'Timestamp', 'School ID', 'School Name', 'Name', 'Position'
+    ]);
+    newStaffSheet.getRange(1, 1, 1, 5).setFontWeight('bold');
   }
 
   // Remove default Sheet1 if exists

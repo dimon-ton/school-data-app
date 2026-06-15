@@ -92,6 +92,7 @@ function saveFormData(data) {
       saveSchoolData(data, schoolId, timestamp);
       saveStaffData(data.staff || [], schoolId, data.school.schoolName, timestamp);
       saveStudentData(data.students || [], schoolId, data.school.schoolName, timestamp);
+      saveNewStaffData(data.newStaff || [], schoolId, data.school.schoolName, timestamp);
     }
 
     return {
@@ -201,9 +202,20 @@ function updateSchoolData(ss, data, schoolId, timestamp) {
     }
   }
 
+  var newStaffSheet = ss.getSheetByName(config.SHEETS.NEW_STAFF);
+  if (newStaffSheet) {
+    var newStaffRows = newStaffSheet.getDataRange().getValues();
+    for (var i = newStaffRows.length - 1; i >= 1; i--) {
+      if (newStaffRows[i][1] == schoolId) {
+        newStaffSheet.deleteRow(i + 1);
+      }
+    }
+  }
+
   // Save new staff and student data
   saveStaffData(data.staff || [], schoolId, data.school.schoolName, timestamp);
   saveStudentData(data.students || [], schoolId, data.school.schoolName, timestamp);
+  saveNewStaffData(data.newStaff || [], schoolId, data.school.schoolName, timestamp);
 }
 
 function ensureSchoolDataHeaders(sheet) {
@@ -254,6 +266,31 @@ function saveStudentData(studentArray, schoolId, schoolName, timestamp) {
       parseInt(item.female) || 0,
       parseInt(item.total) || 0
     ]);
+  }
+}
+
+function saveNewStaffData(newStaffArray, schoolId, schoolName, timestamp) {
+  var config = getConfig();
+  var ss = SpreadsheetApp.openById(config.SPREADSHEET_ID);
+  var sheet = ss.getSheetByName(config.SHEETS.NEW_STAFF);
+
+  if (!sheet) {
+    sheet = ss.insertSheet(config.SHEETS.NEW_STAFF);
+    sheet.appendRow(['Timestamp', 'School ID', 'School Name', 'Name', 'Position']);
+    sheet.getRange(1, 1, 1, 5).setFontWeight('bold');
+  }
+
+  for (var i = 0; i < newStaffArray.length; i++) {
+    var item = newStaffArray[i];
+    if (item.name || item.position) {
+      sheet.appendRow([
+        timestamp,
+        schoolId,
+        schoolName,
+        item.name || '',
+        item.position || ''
+      ]);
+    }
   }
 }
 
@@ -392,6 +429,20 @@ function getSchoolSubmissionDetail(password, schoolId) {
     }
   }
 
+  var newStaff = [];
+  var newStaffSheet = ss.getSheetByName(config.SHEETS.NEW_STAFF);
+  if (newStaffSheet) {
+    var newStaffRows = newStaffSheet.getDataRange().getValues();
+    for (var ns = 1; ns < newStaffRows.length; ns++) {
+      if (String(newStaffRows[ns][1]) === String(schoolId)) {
+        newStaff.push({
+          name: newStaffRows[ns][3] || '',
+          position: newStaffRows[ns][4] || ''
+        });
+      }
+    }
+  }
+
   return {
     success: true,
     school: {
@@ -420,6 +471,7 @@ function getSchoolSubmissionDetail(password, schoolId) {
       submitterPhone: schoolRow[16] || ''
     },
     staff: staff,
-    students: students
+    students: students,
+    newStaff: newStaff
   };
 }

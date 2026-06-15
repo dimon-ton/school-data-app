@@ -546,6 +546,7 @@
       <a class="btn btn-outline-primary btn-sm" href="#adminSection">ผู้บริหาร</a>
       <a class="btn btn-outline-primary btn-sm" href="#staffSection">บุคลากร</a>
       <a class="btn btn-outline-primary btn-sm" href="#studentSection">นักเรียน</a>
+      <a class="btn btn-outline-primary btn-sm" href="#newStaffSection">บรรจุใหม่</a>
       <a class="btn btn-outline-primary btn-sm" href="#submitterSection">ผู้กรอก</a>
     </nav>
 
@@ -726,6 +727,32 @@
       </div>
     </div>
 
+    <!-- Card: ข้อมูลข้าราชการครูบรรจุใหม่ -->
+    <div class="card mb-4 shadow-sm card-custom" id="newStaffSection">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">🆕 ข้อมูลข้าราชการครูและบุคลากรที่บรรจุตั้งแต่ 1 ตุลาคม 68 จนถึงปัจจุบัน</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle mobile-card-table" id="newStaffTable">
+            <thead class="table-light">
+              <tr>
+                <th style="width:5%">#</th>
+                <th style="width:45%">ชื่อ - สกุล</th>
+                <th style="width:35%">ตำแหน่ง</th>
+                <th style="width:15%">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="newStaffTableBody">
+            </tbody>
+          </table>
+        </div>
+        <button type="button" class="btn btn-outline-primary btn-sm mt-3" onclick="addNewStaffRow()">
+          ➕ เพิ่มรายชื่อ
+        </button>
+      </div>
+    </div>
+
     <!-- Card: ข้อมูลผู้กรอก -->
     <div class="card mb-4 shadow-sm card-custom" id="submitterSection">
       <div class="card-header bg-primary text-white">
@@ -771,6 +798,7 @@
 <script>
 // ==================== Staff Management ====================
 var extraStaffCounter = 0;
+var newStaffCounter = 0;
 
 function addExtraStaffRow() {
   extraStaffCounter++;
@@ -802,6 +830,58 @@ function removeExtraStaffRow(rowId) {
     row.remove();
     calculateStaffTotal();
   }
+}
+
+// ==================== New Staff (บรรจุใหม่) Management ====================
+function addNewStaffRow() {
+  newStaffCounter++;
+  var rowId = 'new-staff-' + newStaffCounter;
+  var tbody = document.getElementById('newStaffTableBody');
+  var rowNumber = tbody.querySelectorAll('tr').length + 1;
+  var row = document.createElement('tr');
+  row.id = rowId;
+  row.innerHTML =
+    '<td class="text-center new-staff-row-num" data-label="#">' + rowNumber + '</td>' +
+    '<td data-label="ชื่อ - สกุล"><input type="text" class="form-control new-staff-name" placeholder="ชื่อ - สกุล"></td>' +
+    '<td data-label="ตำแหน่ง"><input type="text" class="form-control new-staff-position" placeholder="ตำแหน่ง"></td>' +
+    '<td data-label="จัดการ"><button type="button" class="btn btn-outline-danger btn-sm w-100" onclick="removeNewStaffRow(\'' + rowId + '\')">🗑️ ลบ</button></td>';
+  tbody.appendChild(row);
+  row.querySelectorAll('.form-control').forEach(function(input) {
+    input.addEventListener('input', function() {
+      this.classList.remove('is-invalid');
+    });
+  });
+}
+
+function removeNewStaffRow(rowId) {
+  var row = document.getElementById(rowId);
+  if (row) {
+    row.remove();
+    renumberNewStaffRows();
+  }
+}
+
+function renumberNewStaffRows() {
+  var rows = document.querySelectorAll('#newStaffTableBody tr');
+  rows.forEach(function(row, index) {
+    var numCell = row.querySelector('.new-staff-row-num');
+    if (numCell) numCell.textContent = index + 1;
+  });
+}
+
+function collectNewStaffData() {
+  var newStaff = [];
+  var rows = document.querySelectorAll('#newStaffTableBody tr');
+  rows.forEach(function(row) {
+    var nameInput = row.querySelector('.new-staff-name');
+    var positionInput = row.querySelector('.new-staff-position');
+    var name = nameInput ? nameInput.value.trim() : '';
+    var position = positionInput ? positionInput.value.trim() : '';
+    if (name || position) {
+      newStaff.push({ name: name, position: position });
+    }
+  });
+  return newStaff;
 }
 
 function calculateStaffTotal() {
@@ -941,6 +1021,7 @@ function collectFormData() {
       submitterPhone: document.getElementById('submitterPhone').value.trim()
     },
     staff: collectStaffData(),
+    newStaff: collectNewStaffData(),
     students: students,
     summary: {
       totalStaff: totalStaff,
@@ -1133,6 +1214,11 @@ function renderFormConfirmationSummary(data) {
   html += '</div></div>';
 
   html += '<div class="submission-detail-section">';
+  html += '<h6 class="fw-bold">ข้อมูลข้าราชการครูและบุคลากรบรรจุใหม่</h6>';
+  html += renderNewStaffSummaryTable(data.newStaff);
+  html += '</div>';
+
+  html += '<div class="submission-detail-section">';
   html += '<h6 class="fw-bold">ข้อมูลผู้กรอกแบบฟอร์ม</h6>';
   html += '<div class="submission-detail-grid">';
   html += renderDetailItem('ผู้กรอกข้อมูล', data.submitter.submitterName);
@@ -1229,6 +1315,12 @@ function resetForm() {
   // Clear added staff rows
   var extraRows = document.querySelectorAll('#staffTable tbody tr[data-type="extra"]');
   extraRows.forEach(function(row) { row.remove(); });
+
+  // Clear new staff rows and add back 1 empty row
+  var newStaffTbody = document.getElementById('newStaffTableBody');
+  if (newStaffTbody) newStaffTbody.innerHTML = '';
+  newStaffCounter = 0;
+  addNewStaffRow();
   extraStaffCounter = 0;
 
   // Reset student counts
@@ -1455,6 +1547,12 @@ function renderSchoolSubmissionDetail(data) {
   html += 'หญิง ' + escapeHtml(data.summary.totalFemaleStudents || 0) + ' คน | ';
   html += 'รวม ' + escapeHtml(data.summary.grandTotalStudents || 0) + ' คน';
   html += '</div></div>';
+
+  html += '<div class="submission-detail-section">';
+  html += '<h6 class="fw-bold">ข้อมูลข้าราชการครูและบุคลากรบรรจุใหม่</h6>';
+  html += renderNewStaffSummaryTable(data.newStaff);
+  html += '</div>';
+
   html += '</div>';
 
   Swal.fire({
@@ -1514,6 +1612,27 @@ function renderStudentSummaryTable(studentRows) {
     });
   } else {
     html += '<tr><td colspan="4" class="text-center text-muted">ไม่มีข้อมูลนักเรียน</td></tr>';
+  }
+
+  html += '</tbody></table></div>';
+  return html;
+}
+
+function renderNewStaffSummaryTable(newStaffRows) {
+  var html = '<div class="table-responsive">';
+  html += '<table class="table table-sm table-bordered submission-detail-table">';
+  html += '<thead class="table-light"><tr><th>#</th><th>ชื่อ - สกุล</th><th>ตำแหน่ง</th></tr></thead><tbody>';
+
+  if (newStaffRows && newStaffRows.length > 0) {
+    newStaffRows.forEach(function(item, index) {
+      html += '<tr>';
+      html += '<td class="text-center">' + (index + 1) + '</td>';
+      html += '<td>' + escapeHtml(item.name || '-') + '</td>';
+      html += '<td>' + escapeHtml(item.position || '-') + '</td>';
+      html += '</tr>';
+    });
+  } else {
+    html += '<tr><td colspan="3" class="text-center text-muted">ไม่มีข้อมูล</td></tr>';
   }
 
   html += '</tbody></table></div>';
@@ -1730,6 +1849,9 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   updateMobileSummary();
+
+  // Add initial empty row for new staff
+  addNewStaffRow();
 });
 </script>
 </body>

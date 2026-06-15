@@ -6,7 +6,141 @@
   <title>ระบบรวบรวมข้อมูลสถานศึกษา</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-  <?!= include('css'); ?>
+  <style>
+body {
+    background-color: #f5f7fa;
+    font-family: 'Sarabun', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .card-custom {
+    border-radius: 12px;
+    border: none;
+    overflow: hidden;
+    transition: box-shadow 0.3s ease;
+  }
+
+  .card-custom:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12) !important;
+  }
+
+  .card-header {
+    padding: 12px 20px;
+  }
+
+  .card-body {
+    padding: 20px;
+  }
+
+  .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+  }
+
+  .table th {
+    font-size: 0.9rem;
+    vertical-align: middle;
+  }
+
+  .table td {
+    vertical-align: middle;
+  }
+
+  .table input.form-control {
+    font-size: 0.9rem;
+    padding: 6px 10px;
+  }
+
+  .btn-lg {
+    font-size: 1.1rem;
+    padding: 12px 20px;
+  }
+
+  .alert-info {
+    border-radius: 8px;
+    font-size: 1.1rem;
+  }
+
+  /* SweetAlert2 custom */
+  .swal2-popup {
+    font-family: 'Sarabun', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1rem;
+  }
+
+  /* Mobile responsive overrides */
+  @media (max-width: 576px) {
+    .container-fluid {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    .card-body {
+      padding: 12px;
+    }
+
+    .btn-lg {
+      font-size: 1rem;
+      padding: 10px 14px;
+    }
+
+    h2 {
+      font-size: 1.3rem;
+    }
+
+    .table {
+      font-size: 0.85rem;
+    }
+
+    .table input.form-control {
+      font-size: 0.85rem;
+      padding: 4px 8px;
+    }
+
+    .swal2-popup {
+      font-size: 0.9rem;
+    }
+  }
+
+  /* Loading spinner overlay */
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  .loading-overlay.active {
+    display: flex;
+  }
+
+  .loading-spinner {
+    background: white;
+    padding: 30px 40px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Schools list modal */
+  .schools-list-container {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .school-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .school-item:last-child {
+    border-bottom: none;
+  }
+  </style>
 </head>
 <body>
   <div class="container-fluid py-4" style="max-width: 960px; margin: 0 auto;">
@@ -236,6 +370,508 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <?!= include('js'); ?>
+<script>
+// ==================== Staff Management ====================
+var extraStaffCounter = 0;
+
+function addExtraStaffRow() {
+  extraStaffCounter++;
+  var rowId = 'extra-staff-' + extraStaffCounter;
+  var tbody = document.getElementById('extraStaffBody');
+  var row = document.createElement('tr');
+  row.id = rowId;
+  row.dataset.type = 'extra';
+  row.innerHTML =
+    '<td><input type="text" class="form-control extra-position" placeholder="ชื่อตำแหน่ง เช่น แม่ครัว"></td>' +
+    '<td><input type="number" class="form-control extra-count" min="0" value="0"></td>' +
+    '<td><input type="text" class="form-control extra-detail" placeholder="หมายเหตุ"></td>' +
+    '<td><button type="button" class="btn btn-outline-danger btn-sm" onclick="removeExtraStaffRow(\'' + rowId + '\')">🗑️ ลบ</button></td>';
+  tbody.appendChild(row);
+  // Recalculate on input
+  row.querySelector('.extra-count').addEventListener('input', calculateStaffTotal);
+  calculateStaffTotal();
+}
+
+function removeExtraStaffRow(rowId) {
+  var row = document.getElementById(rowId);
+  if (row) {
+    row.remove();
+    calculateStaffTotal();
+  }
+}
+
+function calculateStaffTotal() {
+  var total = 0;
+  // Standard positions
+  var standardRows = document.querySelectorAll('#standardStaffTable tbody tr');
+  standardRows.forEach(function(row) {
+    var countInput = row.querySelector('.staff-count');
+    if (countInput) {
+      var val = parseInt(countInput.value) || 0;
+      total += val;
+    }
+  });
+  // Extra positions
+  var extraRows = document.querySelectorAll('#extraStaffTable tbody tr');
+  extraRows.forEach(function(row) {
+    var countInput = row.querySelector('.extra-count');
+    if (countInput) {
+      var val = parseInt(countInput.value) || 0;
+      total += val;
+    }
+  });
+  document.getElementById('totalStaffDisplay').textContent = total;
+  return total;
+}
+
+// ==================== Student Calculations ====================
+function calculateStudentTotal() {
+  var totalMale = 0;
+  var totalFemale = 0;
+  var rows = document.querySelectorAll('#studentTable tbody tr');
+  rows.forEach(function(row) {
+    var maleInput = row.querySelector('.student-male');
+    var femaleInput = row.querySelector('.student-female');
+    var totalCell = row.querySelector('.student-total');
+    if (maleInput && femaleInput && totalCell) {
+      var male = parseInt(maleInput.value) || 0;
+      var female = parseInt(femaleInput.value) || 0;
+      var total = male + female;
+      totalCell.textContent = total;
+      // Don't add the รวม row to totals
+      var level = row.dataset.level;
+      if (level !== 'รวมทั้งหมด') {
+        totalMale += male;
+        totalFemale += female;
+      }
+    }
+  });
+  document.getElementById('totalMaleStudents').textContent = totalMale;
+  document.getElementById('totalFemaleStudents').textContent = totalFemale;
+  document.getElementById('grandTotalStudents').textContent = totalMale + totalFemale;
+  return { totalMale: totalMale, totalFemale: totalFemale, grandTotal: totalMale + totalFemale };
+}
+
+// ==================== Collect Data ====================
+function collectStaffData() {
+  var staff = [];
+  // Standard positions
+  var standardRows = document.querySelectorAll('#standardStaffTable tbody tr');
+  standardRows.forEach(function(row) {
+    var position = row.dataset.position;
+    var type = row.dataset.type;
+    var countInput = row.querySelector('.staff-count');
+    var detailInput = row.querySelector('.staff-detail');
+    if (position) {
+      staff.push({
+        type: type || 'standard',
+        position: position,
+        count: parseInt(countInput ? countInput.value : 0) || 0,
+        detail: detailInput ? detailInput.value : ''
+      });
+    }
+  });
+  // Extra positions
+  var extraRows = document.querySelectorAll('#extraStaffTable tbody tr');
+  extraRows.forEach(function(row) {
+    var positionInput = row.querySelector('.extra-position');
+    var countInput = row.querySelector('.extra-count');
+    var detailInput = row.querySelector('.extra-detail');
+    if (positionInput) {
+      staff.push({
+        type: 'extra',
+        position: positionInput.value || '',
+        count: parseInt(countInput ? countInput.value : 0) || 0,
+        detail: detailInput ? detailInput.value : ''
+      });
+    }
+  });
+  return staff;
+}
+
+function collectStudentData() {
+  var students = [];
+  var rows = document.querySelectorAll('#studentTable tbody tr');
+  rows.forEach(function(row) {
+    var level = row.dataset.level;
+    if (level && level !== 'รวมทั้งหมด') {
+      var maleInput = row.querySelector('.student-male');
+      var femaleInput = row.querySelector('.student-female');
+      var totalCell = row.querySelector('.student-total');
+      var male = parseInt(maleInput ? maleInput.value : 0) || 0;
+      var female = parseInt(femaleInput ? femaleInput.value : 0) || 0;
+      students.push({
+        level: level,
+        male: male,
+        female: female,
+        total: male + female
+      });
+    }
+  });
+  return students;
+}
+
+function collectFormData() {
+  var studentTotals = calculateStudentTotal();
+  var totalStaff = calculateStaffTotal();
+  var students = collectStudentData();
+
+  // Add summary row for students
+  students.push({
+    level: 'รวมทั้งหมด',
+    male: studentTotals.totalMale,
+    female: studentTotals.totalFemale,
+    total: studentTotals.grandTotal
+  });
+
+  return {
+    school: {
+      schoolName: document.getElementById('schoolName').value.trim(),
+      centerNo: document.getElementById('centerNo').value.trim(),
+      district: document.getElementById('district').value.trim()
+    },
+    administrators: {
+      directorName: document.getElementById('directorName').value.trim(),
+      directorPhone: document.getElementById('directorPhone').value.trim(),
+      deputy1Name: document.getElementById('deputy1Name').value.trim(),
+      deputy1Phone: document.getElementById('deputy1Phone').value.trim(),
+      deputy2Name: document.getElementById('deputy2Name').value.trim(),
+      deputy2Phone: document.getElementById('deputy2Phone').value.trim()
+    },
+    staff: collectStaffData(),
+    students: students,
+    summary: {
+      totalStaff: totalStaff,
+      totalMaleStudents: studentTotals.totalMale,
+      totalFemaleStudents: studentTotals.totalFemale,
+      grandTotalStudents: studentTotals.grandTotal
+    }
+  };
+}
+
+// ==================== Validation ====================
+function validateFormData() {
+  var schoolName = document.getElementById('schoolName').value.trim();
+  var centerNo = document.getElementById('centerNo').value.trim();
+  var district = document.getElementById('district').value.trim();
+  var directorName = document.getElementById('directorName').value.trim();
+  var directorPhone = document.getElementById('directorPhone').value.trim();
+
+  var errors = [];
+  if (!schoolName) errors.push('ชื่อโรงเรียน');
+  if (!centerNo) errors.push('ศูนย์ที่');
+  if (!district) errors.push('อำเภอ');
+  if (!directorName) errors.push('ชื่อผู้อำนวยการ');
+  if (!directorPhone) errors.push('หมายเลขโทรศัพท์ผู้อำนวยการ');
+
+  if (directorPhone && !/^\d{9,10}$/.test(directorPhone.replace(/-/g, ''))) {
+    errors.push('หมายเลขโทรศัพท์ผู้อำนวยการต้องเป็นตัวเลข 9-10 หลัก');
+  }
+
+  // Validate extra staff positions
+  var extraRows = document.querySelectorAll('#extraStaffTable tbody tr');
+  extraRows.forEach(function(row) {
+    var positionInput = row.querySelector('.extra-position');
+    var countInput = row.querySelector('.extra-count');
+    if (positionInput && countInput) {
+      var pos = positionInput.value.trim();
+      var count = parseInt(countInput.value) || 0;
+      if (count > 0 && !pos) {
+        errors.push('ตำแหน่งเพิ่มเติมที่มีจำนวนต้องระบุชื่อตำแหน่ง');
+      }
+    }
+  });
+
+  // Validate number fields >= 0
+  var numberInputs = document.querySelectorAll('input[type="number"]');
+  numberInputs.forEach(function(input) {
+    if (parseInt(input.value) < 0) {
+      errors.push('จำนวนต้องไม่ติดลบ');
+    }
+  });
+
+  if (errors.length > 0) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+      html: errors.join('<br>'),
+      confirmButtonText: 'ตกลง'
+    });
+    return false;
+  }
+  return true;
+}
+
+// ==================== Submit Form ====================
+function submitForm() {
+  if (!validateFormData()) return;
+
+  var formData = collectFormData();
+
+  Swal.fire({
+    title: 'ยืนยันการบันทึกข้อมูลหรือไม่?',
+    text: 'โรงเรียน: ' + formData.school.schoolName,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'ยืนยัน',
+    cancelButtonText: 'ยกเลิก',
+    confirmButtonColor: '#0d6efd'
+  }).then(function(result) {
+    if (result.isConfirmed) {
+      sendFormData(formData, false);
+    }
+  });
+}
+
+function sendFormData(formData, forceUpdate) {
+  if (forceUpdate) {
+    formData.forceUpdate = true;
+  }
+
+  Swal.fire({
+    title: 'กำลังบันทึกข้อมูล...',
+    allowOutsideClick: false,
+    didOpen: function() {
+      Swal.showLoading();
+    }
+  });
+
+  google.script.run
+    .withSuccessHandler(function(response) {
+      Swal.close();
+      if (response.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'บันทึกข้อมูลเรียบร้อยแล้ว',
+          confirmButtonText: 'กรอกข้อมูลใหม่',
+          confirmButtonColor: '#198754'
+        }).then(function() {
+          resetForm();
+        });
+      } else if (response.duplicate) {
+        Swal.fire({
+          icon: 'warning',
+          title: response.message,
+          showCancelButton: true,
+          confirmButtonText: 'อัปเดตข้อมูลเดิม',
+          cancelButtonText: 'ยกเลิก',
+          confirmButtonColor: '#ffc107'
+        }).then(function(result) {
+          if (result.isConfirmed) {
+            sendFormData(formData, true);
+          }
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'ไม่สามารถบันทึกข้อมูลได้',
+          text: response.message || 'กรุณาลองใหม่อีกครั้ง',
+          confirmButtonText: 'ตกลง'
+        });
+      }
+    })
+    .withFailureHandler(function(error) {
+      Swal.close();
+      Swal.fire({
+        icon: 'error',
+        title: 'ไม่สามารถบันทึกข้อมูลได้',
+        text: error.message || 'กรุณาลองใหม่อีกครั้ง',
+        confirmButtonText: 'ตกลง'
+      });
+    })
+    .saveFormData(formData);
+}
+
+// ==================== Reset Form ====================
+function resetForm() {
+  document.getElementById('schoolName').value = '';
+  document.getElementById('centerNo').value = '';
+  document.getElementById('district').value = '';
+  document.getElementById('directorName').value = '';
+  document.getElementById('directorPhone').value = '';
+  document.getElementById('deputy1Name').value = '';
+  document.getElementById('deputy1Phone').value = '';
+  document.getElementById('deputy2Name').value = '';
+  document.getElementById('deputy2Phone').value = '';
+
+  // Reset standard staff
+  var standardCountInputs = document.querySelectorAll('#standardStaffTable .staff-count');
+  standardCountInputs.forEach(function(input) { input.value = 0; });
+  var standardDetailInputs = document.querySelectorAll('#standardStaffTable .staff-detail');
+  standardDetailInputs.forEach(function(input) { input.value = ''; });
+
+  // Clear extra staff rows
+  document.getElementById('extraStaffBody').innerHTML = '';
+  extraStaffCounter = 0;
+
+  // Reset student counts
+  var maleInputs = document.querySelectorAll('.student-male');
+  maleInputs.forEach(function(input) { input.value = 0; });
+  var femaleInputs = document.querySelectorAll('.student-female');
+  femaleInputs.forEach(function(input) { input.value = 0; });
+
+  calculateStaffTotal();
+  calculateStudentTotal();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ==================== Excel Download ====================
+function promptDownloadPassword() {
+  Swal.fire({
+    title: 'กรุณากรอกรหัสผ่านสำหรับดาวน์โหลดข้อมูล',
+    input: 'password',
+    inputAttributes: {
+      autocapitalize: 'off',
+      autocorrect: 'off'
+    },
+    showCancelButton: true,
+    confirmButtonText: 'ดาวน์โหลด',
+    cancelButtonText: 'ยกเลิก',
+    confirmButtonColor: '#0d6efd'
+  }).then(function(result) {
+    if (result.isConfirmed) {
+      downloadExcel(result.value);
+    }
+  });
+}
+
+function downloadExcel(password) {
+  Swal.fire({
+    title: 'กำลังเตรียมข้อมูล...',
+    allowOutsideClick: false,
+    didOpen: function() {
+      Swal.showLoading();
+    }
+  });
+
+  google.script.run
+    .withSuccessHandler(function(response) {
+      Swal.close();
+      if (response.success) {
+        createWorkbook(response.data);
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'รหัสผ่านไม่ถูกต้อง',
+          text: response.message || 'กรุณาตรวจสอบรหัสผ่านอีกครั้ง',
+          confirmButtonText: 'ตกลง'
+        });
+      }
+    })
+    .withFailureHandler(function(error) {
+      Swal.close();
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: error.message,
+        confirmButtonText: 'ตกลง'
+      });
+    })
+    .getWorkbookData(password);
+}
+
+function createWorkbook(data) {
+  var wb = XLSX.utils.book_new();
+
+  for (var sheetName in data) {
+    if (data.hasOwnProperty(sheetName)) {
+      var ws = XLSX.utils.aoa_to_sheet(data[sheetName]);
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    }
+  }
+
+  XLSX.writeFile(wb, 'ระบบรวบรวมข้อมูลสถานศึกษา.xlsx');
+
+  Swal.fire({
+    icon: 'success',
+    title: 'ดาวน์โหลดสำเร็จ',
+    text: 'ไฟล์ Excel ถูกดาวน์โหลดเรียบร้อยแล้ว',
+    confirmButtonText: 'ตกลง'
+  });
+}
+
+// ==================== Submitted Schools ====================
+function showSubmittedSchools() {
+  Swal.fire({
+    title: 'กำลังโหลดข้อมูล...',
+    allowOutsideClick: false,
+    didOpen: function() {
+      Swal.showLoading();
+    }
+  });
+
+  google.script.run
+    .withSuccessHandler(function(result) {
+      Swal.close();
+      var html = '<div class="schools-list-container">';
+      html += '<p class="text-center mb-3">ส่งข้อมูลแล้ว <strong>' + result.totalSubmitted + '</strong> โรงเรียน จากทั้งหมด <strong>' + result.totalSchools + '</strong> โรงเรียน</p>';
+      html += '<input type="text" class="form-control mb-3" id="schoolSearchInput" placeholder="🔍 ค้นหาชื่อโรงเรียน..." oninput="searchSubmittedSchool()">';
+      html += '<div id="schoolsList">';
+      if (result.schools.length === 0) {
+        html += '<p class="text-center text-muted">ยังไม่มีโรงเรียนที่ส่งข้อมูล</p>';
+      } else {
+        result.schools.forEach(function(school, index) {
+          html += '<div class="school-item" data-name="' + school.schoolName + '">';
+          html += '<div class="d-flex justify-content-between align-items-center">';
+          html += '<div><strong>' + (index + 1) + '. ' + school.schoolName + '</strong>';
+          html += '<br><small class="text-muted">ศูนย์ที่: ' + school.centerNo + ' | อำเภอ: ' + school.district + '</small></div>';
+          html += '<small class="text-muted">' + school.timestamp + '</small>';
+          html += '</div></div>';
+        });
+      }
+      html += '</div></div>';
+
+      Swal.fire({
+        title: 'ตรวจสอบโรงเรียนที่ส่งข้อมูลแล้ว',
+        html: html,
+        width: 600,
+        confirmButtonText: 'ปิด'
+      });
+    })
+    .withFailureHandler(function(error) {
+      Swal.close();
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: error.message,
+        confirmButtonText: 'ตกลง'
+      });
+    })
+    .getSubmittedSchools();
+}
+
+function searchSubmittedSchool() {
+  var query = document.getElementById('schoolSearchInput').value.toLowerCase();
+  var items = document.querySelectorAll('#schoolsList .school-item');
+  items.forEach(function(item) {
+    var name = item.dataset.name.toLowerCase();
+    item.style.display = name.includes(query) ? '' : 'none';
+  });
+}
+
+// ==================== Event Listeners ====================
+document.addEventListener('DOMContentLoaded', function() {
+  // Auto-calculate staff totals on input
+  var staffCountInputs = document.querySelectorAll('#standardStaffTable .staff-count');
+  staffCountInputs.forEach(function(input) {
+    input.addEventListener('input', calculateStaffTotal);
+  });
+
+  // Auto-calculate student totals on input
+  var studentInputs = document.querySelectorAll('.student-male, .student-female');
+  studentInputs.forEach(function(input) {
+    input.addEventListener('input', calculateStudentTotal);
+  });
+
+  // Prevent negative numbers
+  var numberInputs = document.querySelectorAll('input[type="number"]');
+  numberInputs.forEach(function(input) {
+    input.addEventListener('change', function() {
+      if (parseInt(this.value) < 0) this.value = 0;
+    });
+  });
+});
+</script>
 </body>
 </html>

@@ -123,7 +123,7 @@
   /* Mobile responsive overrides */
   @media (max-width: 576px) {
     body {
-      background: var(--page-bg);
+      background: var(--surface);
     }
 
     .container-fluid {
@@ -193,7 +193,6 @@
       border-radius: 0;
       margin-left: -12px;
       margin-right: -12px;
-      margin-bottom: 0.75rem !important;
       box-shadow: none !important;
       scroll-margin-top: 58px;
     }
@@ -213,15 +212,6 @@
 
     .card-body {
       padding: 12px;
-    }
-
-    .card-body > .row.mb-3,
-    .card-body > .table-responsive,
-    .card-body > h6,
-    .card-body > .alert,
-    .card-body > .btn-sm,
-    .card-body > #newStaffContent {
-      margin-bottom: 1rem !important;
     }
 
     .row.g-3 {
@@ -264,22 +254,35 @@
       gap: 8px;
       width: 100%;
       margin-bottom: 8px;
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: opacity 0.3s ease, max-height 0.3s ease, margin-bottom 0.3s ease;
+      margin-bottom: 0;
+    }
+
+    .mobile-action-summary.visible {
+      opacity: 1;
+      max-height: 80px;
+      margin-bottom: 8px;
     }
 
     .mobile-action-summary div {
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 6px 8px;
+      background: #f0f4ff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 12px;
       text-align: center;
-      font-size: 0.82rem;
-      line-height: 1.25;
+      font-size: 0.85rem;
+      line-height: 1.3;
+      box-shadow: 0 1px 4px rgba(13, 110, 253, 0.12);
     }
 
     .mobile-action-summary strong {
       display: block;
       color: var(--primary);
-      font-size: 1.05rem;
+      font-size: 1.1rem;
+      margin-top: 2px;
     }
 
     .table-responsive {
@@ -287,8 +290,7 @@
     }
 
     .mobile-card-table {
-      border-collapse: separate;
-      border-spacing: 0 14px;
+      border-collapse: collapse;
       margin-bottom: 0;
     }
 
@@ -296,23 +298,27 @@
       display: none;
     }
 
-    .mobile-card-table tbody,
-    .mobile-card-table tr,
-    .mobile-card-table td {
-      display: block;
-      width: 100%;
+    .mobile-card-table tbody {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
 
     .mobile-card-table tr {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 12px;
+      display: block;
+      width: 100%;
+      background: #f8fafc;
+      border: none;
+      border-radius: 10px;
+      padding: 14px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
     .mobile-card-table td {
+      display: block;
+      width: 100%;
       border: 0;
-      padding: 7px 0;
+      padding: 6px 0;
     }
 
     .mobile-card-table td:first-child {
@@ -327,9 +333,9 @@
       content: attr(data-label);
       display: block;
       color: #6b7280;
-      font-size: 0.82rem;
-      font-weight: 700;
-      margin-bottom: 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-bottom: 2px;
     }
 
     .mobile-card-table td[data-label="ตำแหน่ง"],
@@ -337,6 +343,9 @@
       font-size: 1rem;
       font-weight: 700;
       line-height: 1.35;
+      padding-bottom: 10px;
+      margin-bottom: 4px;
+      border-bottom: 1px solid #e5e7eb;
     }
 
     .mobile-card-table td[data-label="ตำแหน่ง"]::before,
@@ -360,14 +369,19 @@
     }
 
     .mobile-card-table tr.table-info {
-      border-color: #9eeaf9;
       background: #e7f8fc;
+      box-shadow: 0 2px 8px rgba(13, 110, 253, 0.15);
     }
 
     .student-entry-table tr {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       column-gap: 10px;
+    }
+
+    .student-entry-table td {
+      display: block;
+      width: auto;
     }
 
     .student-entry-table td[data-label="ระดับ"],
@@ -385,6 +399,10 @@
 
     .student-entry-table tr.table-info td {
       text-align: center;
+    }
+
+    .student-entry-table tr.table-info td::before {
+      font-size: 0.78rem;
     }
 
     .summary-alert {
@@ -1910,6 +1928,20 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   updateMobileSummary();
+
+  var mobileSummary = document.querySelector('.mobile-action-summary');
+  window.addEventListener('scroll', function() {
+    if (!mobileSummary) return;
+    var scrollTop = window.scrollY || window.pageYOffset;
+    var windowHeight = window.innerHeight;
+    var docHeight = document.documentElement.scrollHeight;
+    var nearBottom = scrollTop + windowHeight >= docHeight - 50;
+    if (nearBottom) {
+      mobileSummary.classList.add('visible');
+    } else {
+      mobileSummary.classList.remove('visible');
+    }
+  });
 });
 </script>
 </body>

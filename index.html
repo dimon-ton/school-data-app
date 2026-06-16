@@ -1889,12 +1889,76 @@ function renderSchoolSubmissionDetail(data) {
     showCancelButton: true,
     confirmButtonText: 'กลับไปยังรายชื่อ',
     cancelButtonText: 'ปิด',
-    confirmButtonColor: '#0d9488'
+    confirmButtonColor: '#0d9488',
+    didOpen: function() {
+      var cancelButton = Swal.getCancelButton();
+      if (!cancelButton || document.getElementById('printSchoolDetailBtn')) return;
+
+      var printButton = document.createElement('button');
+      printButton.type = 'button';
+      printButton.id = 'printSchoolDetailBtn';
+      printButton.className = 'swal2-styled';
+      printButton.textContent = 'พิมพ์';
+      printButton.style.backgroundColor = '#2563eb';
+      printButton.style.color = '#fff';
+      printButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        printSchoolSubmissionDetail(data, html);
+      });
+
+      cancelButton.parentNode.insertBefore(printButton, cancelButton);
+    }
   }).then(function(result) {
     if (result.isConfirmed && adminSchoolsCache) {
       renderAdminSchoolsModal(adminSchoolsCache);
     }
   });
+}
+
+function printSchoolSubmissionDetail(data, html) {
+  var printWindow = window.open('', '_blank', 'width=900,height=700');
+  if (!printWindow) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'ไม่สามารถเปิดหน้าพิมพ์ได้',
+      text: 'กรุณาอนุญาตให้เบราว์เซอร์เปิดหน้าต่างใหม่ แล้วลองอีกครั้ง',
+      confirmButtonText: 'ตกลง',
+      confirmButtonColor: '#0d9488'
+    });
+    return;
+  }
+
+  var schoolName = escapeHtml(data.school.schoolName || 'ข้อมูลโรงเรียน');
+  var printedAt = new Date().toLocaleString('th-TH');
+  var printHtml = '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8">';
+  printHtml += '<title>' + schoolName + '</title>';
+  printHtml += '<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">';
+  printHtml += '<style>';
+  printHtml += 'body{font-family:Sarabun,Arial,sans-serif;color:#1e293b;margin:24px;font-size:13px;}';
+  printHtml += 'h1{font-size:20px;margin:0 0 4px;color:#0f766e;}';
+  printHtml += '.print-meta{color:#64748b;margin-bottom:18px;}';
+  printHtml += '.submission-detail{text-align:left;}';
+  printHtml += '.submission-detail-section{border:1px solid #cbd5e1;border-radius:8px;margin-bottom:12px;padding:12px;break-inside:avoid;}';
+  printHtml += '.submission-detail-section h6{font-size:15px;color:#0f766e;margin:0 0 8px;font-weight:700;}';
+  printHtml += '.submission-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}';
+  printHtml += '.submission-detail-item{background:#f8fafc;border-radius:8px;padding:8px 10px;}';
+  printHtml += '.submission-detail-label{display:block;color:#64748b;font-size:11px;font-weight:700;margin-bottom:2px;}';
+  printHtml += 'table{width:100%;border-collapse:collapse;margin:0;}';
+  printHtml += 'th,td{border:1px solid #cbd5e1;padding:6px 8px;text-align:left;}';
+  printHtml += 'th{background:#f1f5f9;color:#475569;font-weight:700;}';
+  printHtml += '.text-end{text-align:right;}.text-center{text-align:center;}.fw-bold{font-weight:700;}';
+  printHtml += '.alert{border:1px solid #99f6e4;background:#f0fdfa;color:#0f766e;border-radius:8px;padding:8px 10px;margin-top:10px;}';
+  printHtml += '@page{margin:14mm;}@media print{body{margin:0;}.submission-detail-section{page-break-inside:avoid;}}';
+  printHtml += '</style></head><body>';
+  printHtml += '<h1>' + schoolName + '</h1>';
+  printHtml += '<div class="print-meta">พิมพ์เมื่อ ' + escapeHtml(printedAt) + '</div>';
+  printHtml += html;
+  printHtml += '<script>window.onload=function(){window.focus();window.print();};<\/script>';
+  printHtml += '</body></html>';
+
+  printWindow.document.open();
+  printWindow.document.write(printHtml);
+  printWindow.document.close();
 }
 
 function renderDetailItem(label, value) {

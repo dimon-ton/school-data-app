@@ -6,3 +6,5 @@
 !css.html
 !js.html
 !appsscript.json
+# Exclude local tooling that Apps Script doesn't need
+scripts/**

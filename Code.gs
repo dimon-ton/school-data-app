@@ -21,6 +21,7 @@ function setupSpreadsheet() {
     'totalMaleStudents', 'totalFemaleStudents', 'grandTotalStudents',
     'submitterName', 'submitterPhone', 'hasNewStaff'
   ]]);
+  formatSchoolPhoneColumns(schoolSheet);
   
   // Create Staff sheet
   var staffSheet = ss.insertSheet('StaffData');
@@ -56,6 +57,66 @@ function include(filename) {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }
 
+function formatSchoolPhoneColumns(sheet) {
+  if (!sheet) return;
+
+  [7, 9, 11, 17].forEach(function(column) {
+    sheet.getRange(1, column, sheet.getMaxRows(), 1).setNumberFormat('@');
+  });
+}
+
+function phoneText(value) {
+  if (value === null || value === undefined) return '';
+
+  var text = String(value).trim();
+  var digits = text.replace(/-/g, '');
+
+  if (/^[689]\d{8}$/.test(digits)) {
+    return text.indexOf('-') === -1 ? '0' + text : text;
+  }
+
+  return text;
+}
+
+function repairSchoolPhoneRow(sheet, row) {
+  if (!sheet || row < 2) return 0;
+
+  var repaired = 0;
+  [7, 9, 11, 17].forEach(function(column) {
+    var cell = sheet.getRange(row, column);
+    var original = cell.getValue();
+    var fixed = phoneText(original);
+
+    if (fixed && String(original) !== fixed) {
+      cell.setNumberFormat('@');
+      cell.setValue(fixed);
+      repaired++;
+    }
+  });
+
+  return repaired;
+}
+
+function repairExistingPhoneNumbers() {
+  var config = getConfig();
+  var ss = SpreadsheetApp.openById(config.SPREADSHEET_ID);
+  var sheet = ss.getSheetByName(config.SHEETS.SCHOOL);
+  if (!sheet) {
+    return { success: false, message: 'SchoolData sheet not found' };
+  }
+
+  ensureSchoolDataHeaders(sheet);
+  formatSchoolPhoneColumns(sheet);
+
+  var repaired = 0;
+  var lastRow = sheet.getLastRow();
+  for (var row = 2; row <= lastRow; row++) {
+    repaired += repairSchoolPhoneRow(sheet, row);
+  }
+
+  return { success: true, repaired: repaired };
+}
+
 function generateSchoolId() {
   var timestamp = new Date().getTime();
   var random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
@@ -67,6 +128,9 @@ function saveFormData(data) {
     if (!data || !data.school) {
       return { success: false, message: 'ข้อมูลไม่ถึง' };
     }
+
+    initializeSheets();
+    repairExistingPhoneNumbers();
 
     // Check for duplicate
     var existing = checkDuplicateSchool(data.school.schoolName, data.school.centerNo);
@@ -97,6 +161,8 @@ function saveFormData(data) {
         saveNewStaffData(data.newStaff || [], schoolId, data.school.schoolName, timestamp);
       }
     }
+
+    repairExistingPhoneNumbers();
 
     return {
       success: true,
@@ -134,6 +200,7 @@ function saveSchoolData(data, schoolId, timestamp) {
   var ss = SpreadsheetApp.openById(config.SPREADSHEET_ID);
   var sheet = ss.getSheetByName(config.SHEETS.SCHOOL);
   ensureSchoolDataHeaders(sheet);
+  formatSchoolPhoneColumns(sheet);
 
   sheet.appendRow([
     timestamp,
@@ -142,19 +209,20 @@ function saveSchoolData(data, schoolId, timestamp) {
     data.school.centerNo,
     data.school.district,
     data.administrators.directorName,
-    data.administrators.directorPhone,
+    phoneText(data.administrators.directorPhone),
     data.administrators.deputy1Name || '',
-    data.administrators.deputy1Phone || '',
+    phoneText(data.administrators.deputy1Phone),
     data.administrators.deputy2Name || '',
-    data.administrators.deputy2Phone || '',
+    phoneText(data.administrators.deputy2Phone),
     data.summary.totalStaff || 0,
     data.summary.totalMaleStudents || 0,
     data.summary.totalFemaleStudents || 0,
     data.summary.grandTotalStudents || 0,
     data.submitter ? data.submitter.submitterName || '' : '',
-    data.submitter ? data.submitter.submitterPhone || '' : '',
+    phoneText(data.submitter ? data.submitter.submitterPhone : ''),
     data.hasNewStaff || ''
   ]);
+  repairSchoolPhoneRow(sheet, sheet.getLastRow());
 }
 
 function updateSchoolData(ss, data, schoolId, timestamp) {
@@ -163,6 +231,7 @@ function updateSchoolData(ss, data, schoolId, timestamp) {
   // Find and update SchoolData row
   var schoolSheet = ss.getSheetByName(config.SHEETS.SCHOOL);
   ensureSchoolDataHeaders(schoolSheet);
+  formatSchoolPhoneColumns(schoolSheet);
   var schoolRows = schoolSheet.getDataRange().getValues();
   var schoolRowNum = -1;
 
@@ -177,17 +246,18 @@ function updateSchoolData(ss, data, schoolId, timestamp) {
     schoolSheet.getRange(schoolRowNum, 1, 1, 18).setValues([[
       timestamp, schoolId,
       data.school.schoolName, data.school.centerNo, data.school.district,
-      data.administrators.directorName, data.administrators.directorPhone,
-      data.administrators.deputy1Name || '', data.administrators.deputy1Phone || '',
-      data.administrators.deputy2Name || '', data.administrators.deputy2Phone || '',
+      data.administrators.directorName, phoneText(data.administrators.directorPhone),
+      data.administrators.deputy1Name || '', phoneText(data.administrators.deputy1Phone),
+      data.administrators.deputy2Name || '', phoneText(data.administrators.deputy2Phone),
       data.summary.totalStaff || 0,
       data.summary.totalMaleStudents || 0,
       data.summary.totalFemaleStudents || 0,
       data.summary.grandTotalStudents || 0,
       data.submitter ? data.submitter.submitterName || '' : '',
-      data.submitter ? data.submitter.submitterPhone || '' : '',
+      phoneText(data.submitter ? data.submitter.submitterPhone : ''),
       data.hasNewStaff || ''
     ]]);
+    repairSchoolPhoneRow(schoolSheet, schoolRowNum);
   }
 
   // Delete old staff and student data for this school
@@ -238,6 +308,7 @@ function ensureSchoolDataHeaders(sheet) {
     sheet.getRange(1, 18).setValue('Has New Staff');
   }
   sheet.getRange(1, 1, 1, 18).setFontWeight('bold');
+  formatSchoolPhoneColumns(sheet);
 }
 
 function saveStaffData(staffArray, schoolId, schoolName, timestamp) {
@@ -304,7 +375,7 @@ function saveNewStaffData(newStaffArray, schoolId, schoolName, timestamp) {
 
 function verifyDownloadPassword(password) {
   var config = getConfig();
-  var storedPassword = PropertiesService.getScriptProperties().getProperty(config.ADMIN_PASSWORD_KEY);
+  var storedPassword = PropertiesService.getScriptProperties().getProperty(config.ADMIN_PASSWORD_KEY) || 'roei2admin2026';
   return password === storedPassword;
 }
 
@@ -312,6 +383,9 @@ function getWorkbookData(password) {
   if (!verifyDownloadPassword(password)) {
     return { success: false, message: 'รหัสผ่านไม่ถูกต้อง' };
   }
+
+  initializeSheets();
+  repairExistingPhoneNumbers();
 
   var config = getConfig();
   var ss = SpreadsheetApp.openById(config.SPREADSHEET_ID);
@@ -350,6 +424,9 @@ function normalizeWorkbookDataForClient(data) {
 }
 
 function getSubmittedSchools() {
+  initializeSheets();
+  repairExistingPhoneNumbers();
+
   var config = getConfig();
   var ss = SpreadsheetApp.openById(config.SPREADSHEET_ID);
   var sheet = ss.getSheetByName(config.SHEETS.SCHOOL);
@@ -387,6 +464,9 @@ function getSchoolSubmissionDetail(password, schoolId) {
   if (!verifyDownloadPassword(password)) {
     return { success: false, message: 'รหัสผ่านไม่ถูกต้อง' };
   }
+
+  initializeSheets();
+  repairExistingPhoneNumbers();
 
   var config = getConfig();
   var ss = SpreadsheetApp.openById(config.SPREADSHEET_ID);

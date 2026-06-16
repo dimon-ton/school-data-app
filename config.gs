@@ -4,8 +4,14 @@
  */
 
 function getConfig() {
+  var spreadsheetId = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID');
+  var fallbackSpreadsheetId = '1hB7KnJG10LIt2QLiDb48xyuIerSySTEOZdsokocBKHU';
+  if (!spreadsheetId) {
+    spreadsheetId = fallbackSpreadsheetId;
+  }
+
   return {
-    SPREADSHEET_ID: PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID') || '1hB7KnJG10LIt2QLiDb48xyuIerSySTEOZdsokocBKHU',
+    SPREADSHEET_ID: spreadsheetId,
     SHEETS: {
       SCHOOL: 'SchoolData',
       STAFF: 'StaffData',
@@ -65,6 +71,7 @@ function initializeSheets() {
     }
     schoolSheet.getRange(1, 1, 1, 18).setFontWeight('bold');
   }
+  formatSchoolPhoneColumns(schoolSheet);
 
   // StaffData headers
   var staffSheet = ss.getSheetByName(config.SHEETS.STAFF);

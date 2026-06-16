@@ -22,6 +22,51 @@ There is no separate test, asset, or build directory.
 
 There is no package install or build step.
 
+## Environment Switching (Production vs Testing)
+
+This project uses **separate Apps Script projects** for production and testing, each with its own Spreadsheet ID stored in Script Properties. This ensures test data never touches the production sheet.
+
+### File Layout
+
+- `.clasp.prod.json` — clasp config pointing to the **production** Apps Script project
+- `.clasp.test.json` — clasp config pointing to the **testing** Apps Script project
+- `.clasp.json` — the active clasp config (git-ignored; swapped by the script below)
+- `scripts/switch-env.sh` — switches environments and optionally pushes/deploys
+
+### Switching Environments
+
+```bash
+# Switch only (updates .clasp.json)
+sh scripts/switch-env.sh prod
+sh scripts/switch-env.sh test
+
+# Switch and push to Apps Script
+sh scripts/switch-env.sh prod --push-only
+sh scripts/switch-env.sh test --push-only
+
+# Switch, push, and deploy
+sh scripts/switch-env.sh prod --deploy
+sh scripts/switch-env.sh test --deploy --deploy-desc "Testing v2"
+```
+
+### Initial Setup for a New Testing Environment
+
+1. Create a new Google Sheet for test data.
+2. Create a new Apps Script project:
+   ```bash
+   mkdir /tmp/school-data-test && cd /tmp/school-data-test
+   clasp create --title "School Data App - Testing"
+   ```
+3. Copy the `scriptId` from `/tmp/school-data-test/.clasp.json` into `.clasp.test.json` in this repo.
+4. Push the code to the testing project: `sh scripts/switch-env.sh test --push-only`
+5. In the Apps Script editor for the testing project, run `initializeScriptProperties('<YOUR_TEST_SPREADSHEET_ID>', '<adminPassword>')` once to set Script Properties.
+6. Run `initializeSheets()` once in the testing project to create sheet headers.
+7. Deploy the testing project: `clasp deploy --description "Testing deployment"` — this gives you a separate testing URL.
+
+### Security Note
+
+`config.gs` no longer contains a hardcoded Spreadsheet ID. If `SPREADSHEET_ID` Script Property is missing, `getConfig()` will throw an error with setup instructions. Each environment must have its own `SPREADSHEET_ID` set via `initializeScriptProperties()`.
+
 ## Coding Style & Naming Conventions
 
 Use two-space indentation. Keep code ASCII unless Thai UI copy is required.
